@@ -1,6 +1,7 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pgen2 import token
 
+
 class FixTrailingWhitespace(BaseFix):
     
     _accept_type = token.NEWLINE

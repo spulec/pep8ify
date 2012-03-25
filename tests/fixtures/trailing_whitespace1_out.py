@@ -13,4 +13,4 @@ class tester(object):
         return "%s %s" % (self.attr1, suffix)
 
     def test_method3(self):
-        print "testing this %s", self.attr2
+        print("testing this %s", self.attr2)
