@@ -17,10 +17,6 @@ def setup():
 def teardown():
     potential_backups = []
     for root, dirs, files in os.walk(FIXTURE_PATH):
-        # for directory in dirs:
-        #     dir_path = join(root, directory)
-        #     for filename in os.listdir(dir_path):
-        #         potential_backups.append(join(dir_path, filename))
         for filename in files:
             potential_backups.append(join(root, filename))
     
@@ -49,6 +45,7 @@ def test_all_fixtures():
                 fixer_to_run = None
             else:
                 fixer_to_run = root.replace(FIXTURE_PATH, "")
+            check_fixture.description = fixer_to_run or "All fixes"
             yield check_fixture, in_file, out_file, fixer_to_run
 
 test_all_fixtures.setup = setup
@@ -56,8 +53,6 @@ test_all_fixtures.teardown = teardown
 
 
 def check_fixture(in_file, out_file, fixer):
-    # filename = in_file.split("/")[-1]
-    # fixer_name = filename.split(".")[0]
     if fixer:
         main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
     else:
