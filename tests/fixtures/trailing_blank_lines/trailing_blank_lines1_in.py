@@ -5,4 +5,3 @@ class tester():
     def func2():
         return
 
-

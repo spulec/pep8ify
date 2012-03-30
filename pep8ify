@@ -7,5 +7,4 @@ from lib2to3.main import main
 
 sys.path.insert(0, abspath(join(dirname(__file__), "../")))
 
-
 sys.exit(main("pep8ify.fixes"))

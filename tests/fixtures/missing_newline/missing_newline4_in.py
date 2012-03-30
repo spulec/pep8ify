@@ -2,7 +2,6 @@ import sys
 
 import foo as bar
 
-
 class testing():
     
     foobar = []
