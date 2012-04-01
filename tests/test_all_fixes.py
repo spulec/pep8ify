@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from functools import partial
 import os
 from os.path import join
 import shutil
@@ -45,8 +46,13 @@ def test_all_fixtures():
                 fixer_to_run = None
             else:
                 fixer_to_run = root.replace(FIXTURE_PATH, "")
-            check_fixture.description = fixer_to_run or "All fixes"
-            yield check_fixture, in_file, out_file, fixer_to_run
+            
+            # This partial business is hack to make the description attribute actually work.
+            # See http://code.google.com/p/python-nose/issues/detail?id=244#c1
+            func = partial(check_fixture, in_file, out_file, fixer_to_run)
+            func.description = fixer_to_run or "All fixes"
+            yield (func,)
+
 
 test_all_fixtures.setup = setup
 test_all_fixtures.teardown = teardown

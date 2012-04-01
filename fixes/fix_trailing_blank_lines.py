@@ -6,7 +6,6 @@ from .utils import get_leaves_after_last_newline
 class FixTrailingBlankLines(BaseFix):
     u''' Make sure that the file doesn't end with numerous newlines.'''
     
-    #_accept_type = token.NEWLINE
     order = "pre"
     first_time = True
     

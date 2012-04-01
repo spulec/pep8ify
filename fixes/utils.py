@@ -1,5 +1,15 @@
 from lib2to3.pgen2 import token
 
+BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
+    '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
+    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
+OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
+
+
+def is_leaf(node):
+    return hasattr(node, 'value')
+    # TODO: replace all of these with `if isinstance(node, Leaf):`
 
 def get_leaves_after_last_newline(node):
     # Get all of the leaves after the last newline leaf
