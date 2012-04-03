@@ -16,6 +16,7 @@ def setup():
 
 
 def teardown():
+    #import pdb;pdb.set_trace()
     potential_backups = []
     for root, dirs, files in os.walk(FIXTURE_PATH):
         for filename in files:

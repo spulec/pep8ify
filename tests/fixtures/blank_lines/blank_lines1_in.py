@@ -2,11 +2,13 @@ def a():
     pass
 
 
+# asdfasdf
 def b():
     pass
 
 
-@dec
+@dec1
+@dec2
 def a():
     pass
 
@@ -37,11 +39,22 @@ def a():
 def b(n):
     pass
 def a():
-    
-    
-    
+
+
+
     pass
 @decorator
-
 def a():
-    pass
+    print "testing 1"
+
+
+
+    # test comment
+    print "testing 2"
+
+    print "testing 3"
+
+foo = 7
+
+
+bar = 2
