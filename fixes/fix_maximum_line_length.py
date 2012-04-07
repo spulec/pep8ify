@@ -4,32 +4,15 @@ from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols
 from textwrap import TextWrapper
 
-from .utils import tuplize_comments
+from .utils import tuplize_comments, get_quotes
 
 MAX_CHARS = 79
-
-def get_quotes(text):
-    # Returns the quote type start and end
-    # TODO clean this up for additional String literal types
-    
-    if text[:4] == u'u"""' or text[:4] == u"u'''":
-        quote_start = text[:4]
-    else:
-        # TODO this needs to be cleaned up to deal with non-unicode strings
-        quote_start = text[:2]
-    if quote_start[0] not in [u'"', u"'"]:
-        # Starts with a 'u' or something like that
-        return (quote_start, quote_start[1:])
-    else:
-        return (quote_start, quote_start)
 
 
 class FixMaximumLineLength(BaseFix):
     u''' No line should be greater than 80 characters.
     
     TODO: unicode chars have different length
-    TODO: project wide search for string concat
-    TODO: docstrings can start with #s
     '''
     
     def match(self, node):
@@ -51,13 +34,13 @@ class FixMaximumLineLength(BaseFix):
             comment_indent_level = comments.index(u'#')
             
             # Combine all comment lines together
-            all_comments = u' '.join([line.replace(u'#', '').lstrip() for line in comments.split(u'\n')])
+            all_comments = u' '.join([line.replace(u'#', '', 1).lstrip() for line in comments.split(u'\n')])
             comment_prefix = u'%s# ' % (u' ' * comment_indent_level)
             
             wrapper = TextWrapper(width=MAX_CHARS, initial_indent=comment_prefix, subsequent_indent=comment_prefix)
             split_lines = wrapper.wrap(all_comments)
-
-            new_prefix = u'%s%s\n%s' % (before_comments, u'\n'.join(split_lines), u' ' * trailing_spaces)  # Append the trailing spaces back
+            
+            new_prefix = u'%s%s\n%s%s' % (before_comments, u'\n'.join(split_lines), u' ' * trailing_spaces, after_comments)  # Append the trailing spaces back
             node.prefix = new_prefix
             node.changed()
         else:
@@ -74,7 +57,8 @@ class FixMaximumLineLength(BaseFix):
                 triple_quoted = quote_start.count(u'"""') or quote_start.count(u"'''")
             
                 if triple_quoted:
-                    wrapper = TextWrapper(width=max_length, subsequent_indent=u' ' * (4 + node_to_split.column))
+                    comment_indent = u' ' * (4 + node_to_split.column)
+                    wrapper = TextWrapper(width=max_length, subsequent_indent=comment_indent)
                     split_lines = wrapper.wrap(node_to_split.value)
                     first_line = split_lines.pop(0)
                 
@@ -136,7 +120,7 @@ class FixMaximumLineLength(BaseFix):
                         # strip the current 1st child and add a space, since we will be prepending an LParen
                         value_node.children[0].prefix = value_node.children[0].prefix.strip()
                         value_node.children[0].changed()
-                    
+                        
                         # We set a space prefix since this is after the '='
                         left_paren = LParen()
                         left_paren.prefix = u" "
@@ -145,7 +129,7 @@ class FixMaximumLineLength(BaseFix):
                         value_node.changed()
                 elif node_to_split.type == python_symbols.power or node_to_split.type == python_symbols.atom:
                     # a.b().c()
-                
+                    
                     # We don't need to add parens if we are calling a func and not splitting on a func call
                     if node_to_split.type == python_symbols.power and not breaking_on_func_call:
                         pass
@@ -156,6 +140,3 @@ class FixMaximumLineLength(BaseFix):
                 elif node_to_split.type == python_symbols.parameters:
                     # Paramteres are always parenthesized already
                     pass
-                else:
-                    pass
-                    #import pdb;pdb.set_trace()

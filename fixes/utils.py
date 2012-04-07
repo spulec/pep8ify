@@ -62,3 +62,23 @@ def tuplize_comments(prefix):
             comments = prefix
     comments_start = prefix.index(comments)
     return prefix[:comments_start], comments, prefix[comments_start + len(comments):]
+
+
+def get_quotes(text):
+    # Returns the quote type start and end
+    # Given u"ur'the string'" returns (u"ur'", u"'")
+
+    if text[:2].lower() in [u'br', u'ur']:
+        leading_chars = 2
+    elif text[:1].lower() in [u'b', u'u', u'r']:
+        leading_chars = 1
+    else:
+        leading_chars = 0
+
+    if text[leading_chars:leading_chars + 3] in [u'"""', u"'''"]:
+        # Triple-quoted string
+        quote_start = text[:leading_chars + 3]
+    else:
+        # Single-quoted string
+        quote_start = text[:leading_chars + 1]
+    return (quote_start, quote_start[leading_chars:])

@@ -36,6 +36,9 @@ testering = (the_fixering +
 
 
 def tester4():
+    # This is a docstring that starts with a '#' and is greater than the max
+    # chars
+
     (tester_object.test_a_really_long_method().
         chain_it_with_another_super_long_method_name())
 

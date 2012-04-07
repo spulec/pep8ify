@@ -80,7 +80,8 @@ class FixCompoundStatements(BaseFix):
             # Strip any whitespace that could have been there
             node_copy.prefix = node_copy.prefix.lstrip()
             old_depth = find_indentation(node)
-            new_node = Node(python_symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, (u' ' * 4) + old_depth), node_copy, Leaf(token.DEDENT, u'')])
+            new_indent = u'%s%s' % ((u' ' * 4), old_depth)
+            new_node = Node(python_symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), node_copy, Leaf(token.DEDENT, u'')])
             node.replace(new_node)
             node.changed()
             
