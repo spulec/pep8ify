@@ -2,7 +2,7 @@ from lib2to3.fixer_base import BaseFix
 #from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols
 
-from .utils import get_whitespace_before_definition, has_parent
+from .utils import get_whitespace_before_definition, has_parent, tuplize_comments
 
 
 class FixBlankLines(BaseFix):
@@ -19,6 +19,7 @@ class FixBlankLines(BaseFix):
     
     '''
     #temp = False
+    #TODO add 6 blank lines on line 28
     
     def match(self, node):
         # if hasattr(node, 'value') and node.value == "testing2":
@@ -86,40 +87,6 @@ class FixBlankLines(BaseFix):
             whitespace_before_def.prefix = u'%s%s%s' % (before_comments, comments, after_comments)
             whitespace_before_def.changed()
 
-def tuplize_comments(prefix):
-    # Given u'\n\n# asdfasdf\n#asdfsad\n\n', returns ([u'', u''], [u'# asdfasdf', u'#asdfsad'], [u''])
-    # We strip the last newline after a set of comments since it doesn't cound toward line counts
-    #prefix = prefix.rsplit('\n', 1)[0]
-    
-    if not prefix:
-        return (u'', u'', u'')
-
-    
-    if prefix.count("#"):
-        comments = (u"%s\n" % prefix.lstrip(u'\n').rstrip(u'\n')) if prefix[-1] == u'\n' else prefix.lstrip(u'\n').rstrip(u'\n')  # Leave the trailing newline from the comment per the docstring
-    else:
-        if prefix.count(u'\n'):
-            comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line
-        else:
-            comments = prefix
-    
-    # if comments.count("# test comment"):
-    #     import pdb;pdb.set_trace()
-    try:
-        comments_start = prefix.index(comments)
-    except ValueError:
-        import pdb;pdb.set_trace()
-    return prefix[:comments_start], comments, prefix[comments_start + len(comments):]
-    # split_lines = prefix.split(u'\n')
-    # newlines_after_last_comment = newlines_before_comments(reversed(split_lines))
-    # 
-    # import pdb;pdb.set_trace()
-    # if newlines_after_last_comment is None:
-    #     return (split_lines, [], [])
-    # newlines_before_first_comment = newlines_before_comments(split_lines)
-    # We strip off the ending newline, see note in docstring.
-    # return (split_lines[:newlines_before_first_comment], split_lines[newlines_before_first_comment:-newlines_after_last_comment],
-    #     split_lines[-newlines_after_last_comment:])
 
 def newlines_before_comments(split_lines):
     for index, line in enumerate(split_lines):

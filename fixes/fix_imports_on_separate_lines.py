@@ -12,6 +12,7 @@ class FixImportsOnSeparateLines(BaseFix):
     u''' No line should be greater than 80 characters.
     Imports should usually be on separate lines.
     
+    TODO: need to add test cases for import inside of functions
     '''
     
     def match(self, node):

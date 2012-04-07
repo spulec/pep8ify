@@ -42,3 +42,23 @@ def has_parent(node, symbol_type):
     # Returns if node has a parent of type symbol_type
     if node.parent:
         return node.parent.type == symbol_type or has_parent(node.parent, symbol_type)
+
+def tuplize_comments(prefix):
+    # This tuplizes the newlines before and after the prefix
+    # Given u'\n\n\n    # test comment\n    ', returns ([u'\n\n\n'], [u'# test comment\n    '], [u''])
+    # We strip the last newline after a set of comments since it doesn't cound toward line counts
+
+    #TODO this needs to be improved to handle spaces between nelines, ie u'\n    \n    #comment\n    '
+
+    if not prefix:
+        return (u'', u'', u'')
+
+    if prefix.count("#"):
+        comments = (u"%s\n" % prefix.lstrip(u'\n').rstrip(u'\n')) if prefix[-1] == u'\n' else prefix.lstrip(u'\n').rstrip(u'\n')  # Leave the trailing newline from the comment per the docstring
+    else:
+        if prefix.count(u'\n'):
+            comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line
+        else:
+            comments = prefix
+    comments_start = prefix.index(comments)
+    return prefix[:comments_start], comments, prefix[comments_start + len(comments):]
