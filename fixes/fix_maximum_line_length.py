@@ -1,7 +1,7 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import Leaf, LParen, RParen, find_indentation, parenthesize
 from lib2to3.pgen2 import token
-from lib2to3.pygram import python_symbols
+from lib2to3.pygram import python_symbols as symbols
 from textwrap import TextWrapper
 
 from .utils import tuplize_comments, get_quotes
@@ -10,9 +10,15 @@ MAX_CHARS = 79
 
 
 class FixMaximumLineLength(BaseFix):
-    u''' No line should be greater than 80 characters.
-    
-    TODO: unicode chars have different length
+    u'''
+    Limit all lines to a maximum of 79 characters.
+
+    There are still many devices around that are limited to 80 character
+    lines; plus, limiting windows to 80 characters makes it possible to have
+    several windows side-by-side.  The default wrapping on such devices looks
+    ugly.  Therefore, please limit all lines to a maximum of 79 characters.
+    For flowing long blocks of text (docstrings or comments), limiting the
+    length to 72 characters is recommended.
     '''
     
     def match(self, node):
@@ -103,7 +109,7 @@ class FixMaximumLineLength(BaseFix):
                 first_leaf_gt_limit.changed()
 
                 # Parenthesize the parent since we inserted newlines between leaves above
-                if node_to_split.type == python_symbols.print_stmt:
+                if node_to_split.type == symbols.print_stmt:
                     # print "hello there"
                     if node_to_split.children[1] != LParen():
                         # node_to_split.children[0] is the "print" literal
@@ -113,7 +119,7 @@ class FixMaximumLineLength(BaseFix):
                         node_to_split.insert_child(1, LParen())
                         node_to_split.append_child(RParen())
                         node_to_split.changed()
-                elif node_to_split.type == python_symbols.expr_stmt:
+                elif node_to_split.type == symbols.expr_stmt:
                     # x = "%s%s" % ("foo", "bar")
                     value_node = node_to_split.children[2]
                     if value_node.children[0] != LParen():
@@ -127,16 +133,16 @@ class FixMaximumLineLength(BaseFix):
                         value_node.insert_child(0, left_paren)
                         value_node.append_child(RParen())
                         value_node.changed()
-                elif node_to_split.type == python_symbols.power or node_to_split.type == python_symbols.atom:
+                elif node_to_split.type == symbols.power or node_to_split.type == symbols.atom:
                     # a.b().c()
                     
                     # We don't need to add parens if we are calling a func and not splitting on a func call
-                    if node_to_split.type == python_symbols.power and not breaking_on_func_call:
+                    if node_to_split.type == symbols.power and not breaking_on_func_call:
                         pass
                     elif node_to_split.children[0] != LParen():
                         node_to_split.insert_child(0, LParen())
                         node_to_split.append_child(RParen())
                         node_to_split.changed()
-                elif node_to_split.type == python_symbols.parameters:
+                elif node_to_split.type == symbols.parameters:
                     # Paramteres are always parenthesized already
                     pass

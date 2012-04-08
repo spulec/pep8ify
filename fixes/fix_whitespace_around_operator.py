@@ -1,8 +1,9 @@
 from lib2to3.fixer_base import BaseFix
+from lib2to3.fixer_util import Leaf
 from lib2to3.pgen2 import token
-from lib2to3.pytree import type_repr
+from lib2to3.pygram import python_symbols as symbols
 
-from .utils import OPERATORS, BINARY_OPERATORS, UNARY_OPERATORS, is_leaf
+from .utils import OPERATORS, BINARY_OPERATORS, UNARY_OPERATORS
 
 class FixWhitespaceAroundOperator(BaseFix):
     u''' Avoid extraneous whitespace in the following situations:
@@ -13,18 +14,20 @@ class FixWhitespaceAroundOperator(BaseFix):
     '''
     
     def match(self, node):
-        if is_leaf(node) and node.value in OPERATORS:
+        if isinstance(node, Leaf) and node.value in OPERATORS:
             # Allow unary operators: -123, -x, +1.
-            if node.value in UNARY_OPERATORS and type_repr(node.parent.type) == u'factor':
+            if node.value in UNARY_OPERATORS and node.parent.type == symbols.factor:
                 return "rstrip"
             
             # Allow argument unpacking: foo(*args, **kwargs).
-            if node.value in [u'*', u'**'] and type_repr(node.parent.type) in [u'arglist', u'varargslist', u'typedargslist'] \
-                and (not node.prev_sibling or node.prev_sibling.type == token.COMMA):
+            arg_symbols = [symbols.arglist, symbols.varargslist, symbols.typedargslist]
+            if (node.value in [u'*', u'**'] and node.parent.type in arg_symbols
+                and (not node.prev_sibling or node.prev_sibling.type == token.COMMA)):
                 return "rstrip"
             
             # Allow keyword assignment: foobar(foo=bar)
-            if node.value == u'=' and type_repr(node.parent.type) in [u'argument', u'arglist', u'typedargslist']:
+            keyword_arg_symbols = [symbols.argument, symbols.arglist, symbols.typedargslist]
+            if node.value == u'=' and node.parent.type in keyword_arg_symbols:
                 return "no_spaces"
             
             # Finally check if the spacing actually needs fixing

@@ -1,13 +1,12 @@
 from lib2to3.fixer_base import BaseFix
-
-from .utils import is_leaf
+from lib2to3.fixer_util import Leaf
 
 
 class FixTabs(BaseFix):
     u''' Replace all tabs with spaces.'''
     
     def match(self, node):
-        if node.prefix.count('\t') or (is_leaf(node)
+        if node.prefix.count('\t') or (isinstance(node, Leaf)
             and node.value.count('\t')):
             return True
         return False

@@ -1,0 +1,4 @@
+-Make sure all fixes have docstrings containing the relevant part of pep8
+-Make sure all tests work with all fixes and setup makefile to be able to test that
+-Test it against own codebase
+-Get README/Documentation setup

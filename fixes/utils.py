@@ -8,11 +8,6 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 
 
-def is_leaf(node):
-    return hasattr(node, 'value')
-    # TODO: replace all of these with `if isinstance(node, Leaf):`
-
-
 def get_leaves_after_last_newline(node):
     # Get all of the leaves after the last newline leaf
     all_leaves = []
@@ -28,14 +23,17 @@ def get_leaves_after_last_newline(node):
 
 def get_whitespace_before_definition(node):
     if node.prev_sibling:
-        return get_last_child(node.prev_sibling)
+        return get_last_child_with_whitespace(node.prev_sibling)
 
 
-def get_last_child(node):
-    if isinstance(node, Leaf):
-        return node
-    else:
-        return get_last_child(node.children[-1])
+def get_last_child_with_whitespace(node):
+    leaves = []
+    for leaf in node.leaves():
+        leaves.append(leaf)
+    reverse_leaves = reversed(leaves)
+    for leaf in reverse_leaves:
+        if u'\n' in leaf.prefix or leaf.value == u'\n':
+            return leaf
 
 
 def has_parent(node, symbol_type):
@@ -45,7 +43,7 @@ def has_parent(node, symbol_type):
 
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
-    # Given u'\n\n\n    # test comment\n    ', returns ([u'\n\n\n'], [u'# test comment\n    '], [u''])
+    # Given u'\n\n\n    # test comment\n    \n', returns ([u'\n\n\n'], [u'# test comment\n    '], [u'\n'])
     # We strip the last newline after a set of comments since it doesn't cound toward line counts
 
     #TODO this needs to be improved to handle spaces between nelines, ie u'\n    \n    #comment\n    '
@@ -54,7 +52,7 @@ def tuplize_comments(prefix):
         return (u'', u'', u'')
 
     if prefix.count("#"):
-        comments = (u"%s\n" % prefix.lstrip(u'\n').rstrip(u'\n')) if prefix[-1] == u'\n' else prefix.lstrip(u'\n').rstrip(u'\n')  # Leave the trailing newline from the comment per the docstring
+        comments = u"%s\n" % prefix.lstrip(u'\n').rstrip(u'\n') if prefix[-1] == u'\n' else prefix.lstrip(u'\n').rstrip(u'\n')  # Leave the trailing newline from the comment per the docstring
     else:
         if prefix.count(u'\n'):
             comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line

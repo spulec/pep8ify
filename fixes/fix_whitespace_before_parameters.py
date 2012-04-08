@@ -1,6 +1,6 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pgen2 import token
-from lib2to3.pytree import type_repr
+from lib2to3.pygram import python_symbols as symbols
 
 
 class FixWhitespaceBeforeParameters(BaseFix):
@@ -15,7 +15,7 @@ class FixWhitespaceBeforeParameters(BaseFix):
     '''
     
     def match(self, node):
-        if node.type in (token.LPAR, token.LSQB) and type_repr(node.parent.type) == 'trailer':
+        if node.type in (token.LPAR, token.LSQB) and node.parent.type == symbols.trailer:
             return True
         return False
     

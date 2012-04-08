@@ -1,6 +1,5 @@
 from lib2to3.fixer_base import BaseFix
-#from lib2to3.pgen2 import token
-from lib2to3.pygram import python_symbols
+from lib2to3.pygram import python_symbols as symbols
 
 from .utils import get_whitespace_before_definition, has_parent, tuplize_comments
 
@@ -18,24 +17,15 @@ class FixBlankLines(BaseFix):
     Use blank lines in functions, sparingly, to indicate logical sections.
     
     '''
-    #temp = False
-    #TODO add 6 blank lines on line 28
-    
+
     def match(self, node):
-        # if hasattr(node, 'value') and node.value == "testing2":
-        #     import pdb;pdb.set_trace()
-        #     self.temp = True
-        # 
-        # if self.temp:
-        #     import pdb;pdb.set_trace()
-        
         # Get classes, non-decorateds funcs and decorators. Ignore decorateds funcs
         # since they will be taken care of with the decorator.
-        if (node.type == python_symbols.funcdef and node.parent.type != python_symbols.decorated) \
-            or node.type == python_symbols.classdef or node.type == python_symbols.decorated or node.type == python_symbols.simple_stmt:
+        if (node.type == symbols.funcdef and node.parent.type != symbols.decorated) \
+            or node.type == symbols.classdef or node.type == symbols.decorated or node.type == symbols.simple_stmt:
             return True
         return False
-    
+
     def transform(self, node, results):
         
         # Sometimes newlines are in prefix of current node, sometimes they're in prefix of the prev sibling
@@ -52,10 +42,10 @@ class FixBlankLines(BaseFix):
         
         before_comments, comments, after_comments = tuplize_comments(previous_whitespace)
         
-        if node.type == python_symbols.simple_stmt or has_parent(node, python_symbols.simple_stmt):
+        if node.type == symbols.simple_stmt or has_parent(node, symbols.simple_stmt):
             max_lines_between_defs = 1
             min_lines_between_defs = 0
-        elif has_parent(node, python_symbols.classdef) or has_parent(node, python_symbols.funcdef):
+        elif has_parent(node, symbols.classdef) or has_parent(node, symbols.funcdef):
             # If we're inside a definition, only use a single space
             max_lines_between_defs = 1
             min_lines_between_defs = 1

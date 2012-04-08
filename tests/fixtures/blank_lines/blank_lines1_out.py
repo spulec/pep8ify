@@ -26,7 +26,7 @@ class Foo:
         pass
 
 
-def a():
+def testing345():
     pass
 
 
@@ -42,7 +42,7 @@ def b(n):
     pass
 
 
-def a():
+def testing123():
 
     pass
 

@@ -1,10 +1,9 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import find_indentation
 from lib2to3.pgen2 import token
-from lib2to3.pygram import python_symbols
+from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Node, Leaf
 
-from .utils import is_leaf
 
 class FixCompoundStatements(BaseFix):
     u''' Compound statements (multiple statements on the same line) are
@@ -64,13 +63,13 @@ class FixCompoundStatements(BaseFix):
     
     def match(self, node):
         results = {}
-        if node.prev_sibling and is_leaf(node.prev_sibling) and node.prev_sibling.type == token.COLON and node.type != python_symbols.suite:
+        if node.prev_sibling and isinstance(node.prev_sibling, Leaf) and node.prev_sibling.type == token.COLON and node.type != symbols.suite:
             # If it's inside a lambda definition, leave it alone
-            if node.parent.type == python_symbols.lambdef:
+            if node.parent.type == symbols.lambdef:
                 pass
             else:
                 results["colon"] = True
-        if node.type == python_symbols.simple_stmt and Leaf(token.SEMI, u';') in node.children:
+        if node.type == symbols.simple_stmt and Leaf(token.SEMI, u';') in node.children:
             results["semi"] = True
         return results
     
@@ -81,7 +80,7 @@ class FixCompoundStatements(BaseFix):
             node_copy.prefix = node_copy.prefix.lstrip()
             old_depth = find_indentation(node)
             new_indent = u'%s%s' % ((u' ' * 4), old_depth)
-            new_node = Node(python_symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), node_copy, Leaf(token.DEDENT, u'')])
+            new_node = Node(symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), node_copy, Leaf(token.DEDENT, u'')])
             node.replace(new_node)
             node.changed()
             

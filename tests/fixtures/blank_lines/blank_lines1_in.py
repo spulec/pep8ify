@@ -25,7 +25,13 @@ class Foo:
     b = 0
     def bar():
         pass
-def a():
+
+
+
+
+
+
+def testing345():
     pass
 
 def b(n):
@@ -38,7 +44,7 @@ def a():
 
 def b(n):
     pass
-def a():
+def testing123():
 
 
 
