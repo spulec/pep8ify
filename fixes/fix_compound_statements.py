@@ -6,7 +6,8 @@ from lib2to3.pytree import Node, Leaf
 
 
 class FixCompoundStatements(BaseFix):
-    u''' Compound statements (multiple statements on the same line) are
+    u'''
+    Compound statements (multiple statements on the same line) are
     generally discouraged.
 
     While sometimes it's okay to put an if/for/while with a small body

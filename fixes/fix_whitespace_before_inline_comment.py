@@ -3,12 +3,12 @@ from lib2to3.pgen2 import token
 
 
 class FixWhitespaceBeforeInlineComment(BaseFix):
-    u''' Separate inline comments by at least two spaces.
+    u'''
+    Separate inline comments by at least two spaces.
 
     An inline comment is a comment on the same line as a statement.  Inline
     comments should be separated by at least two spaces from the statement.
     They should start with a # and a single space.
-
     '''
     
     _accept_type = token.NEWLINE

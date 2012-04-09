@@ -3,7 +3,10 @@ from lib2to3.fixer_util import Leaf
 
 
 class FixTabs(BaseFix):
-    u''' Replace all tabs with spaces.'''
+    u'''
+    For new projects, spaces-only are strongly recommended over tabs.  Most
+    editors have features that make this easy to do.
+    '''
     
     def match(self, node):
         if node.prefix.count('\t') or (isinstance(node, Leaf)

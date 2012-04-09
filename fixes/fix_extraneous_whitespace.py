@@ -1,24 +1,22 @@
 from lib2to3.fixer_base import BaseFix
-#from lib2to3.pgen2 import token
+from lib2to3.pgen2 import token
 
 
 class FixExtraneousWhitespace(BaseFix):
-    u''' No line should be greater than 80 characters.'''
+    u'''
+    Avoid extraneous whitespace in the following situations:
+
+    - Immediately inside parentheses, brackets or braces.
+
+    - Immediately before a comma, semicolon, or colon.
+    '''
     
     def match(self, node):
-        if node.type in (7, 9, 26):
+        if node.type in (token.LPAR, token.LSQB, token.LBRACE):
             return 'rstrip'
-        elif node.type in (8, 10, 11, 12, 27):
+        elif node.type in (token.RPAR, token.RSQB, token.COLON, token.COMMA, token.SEMI, token.RBRACE):
             return 'lstrip'
         return False
-        # LPAR = 7
-        # RPAR = 8
-        # LSQB = 9
-        # RSQB = 10
-        # LBRACE = 26
-        # RBRACE = 27
-        # COLON = 11
-        # COMMA = 12
     
     def transform(self, node, results):
         if results == 'rstrip' and node.get_suffix():

@@ -3,14 +3,14 @@ from lib2to3.fixer_util import Leaf
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 
-from .utils import OPERATORS, BINARY_OPERATORS, UNARY_OPERATORS
+from .utils import OPERATORS, UNARY_OPERATORS
 
 class FixWhitespaceAroundOperator(BaseFix):
-    u''' Avoid extraneous whitespace in the following situations:
+    u'''
+    Avoid extraneous whitespace in the following situations:
     
     - More than one space around an assignment (or other) operator to
       align it with another.
-    
     '''
     
     def match(self, node):

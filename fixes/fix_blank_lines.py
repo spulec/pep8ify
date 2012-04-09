@@ -15,7 +15,6 @@ class FixBlankLines(BaseFix):
     one-liners (e.g. a set of dummy implementations).
 
     Use blank lines in functions, sparingly, to indicate logical sections.
-    
     '''
 
     def match(self, node):
@@ -54,19 +53,19 @@ class FixBlankLines(BaseFix):
             max_lines_between_defs = 2
             min_lines_between_defs = 2
         
-        if len(before_comments) > max_lines_between_defs:
+        if before_comments.count(u"\n") > max_lines_between_defs:
             before_comments = u'\n' * max_lines_between_defs
-        if len(after_comments) > max_lines_between_defs:
+        if after_comments.count(u"\n") > max_lines_between_defs:
             after_comments = u'\n' * max_lines_between_defs
         
-        if len(before_comments) + len(after_comments) > max_lines_between_defs:
+        if before_comments.count(u"\n") + after_comments.count(u"\n") > max_lines_between_defs:
             if before_comments and after_comments:
                 # If there are spaces before and after, trim them down on both sides
                 # to either 1 before and 1 after or 0 before and 1 after.
                 before_comments = u'\n' * (min_lines_between_defs - 1) if min_lines_between_defs else u''
                 after_comments = u'\n'
         
-        comment_lines = len(before_comments) + len(after_comments)
+        comment_lines = before_comments.count(u"\n") + after_comments.count(u"\n")
         if comment_lines < min_lines_between_defs:
             before_comments += (min_lines_between_defs - comment_lines) * u'\n'
         

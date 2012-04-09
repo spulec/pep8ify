@@ -4,8 +4,12 @@ from .utils import get_leaves_after_last_newline
 
 
 class FixMissingNewline(BaseFix):
-    u''' Make sure that the file ends in a newline. This is somewhat tricky
-        since the parse tree sometimes categorizes newlines as token.DEDENTs'''
+    u'''
+    The last line should have a newline.
+    
+    This is somewhat tricky since the parse tree
+    sometimes categorizes newlines as token.DEDENTs
+    '''
     
     #_accept_type = token.NEWLINE
     order = "pre"

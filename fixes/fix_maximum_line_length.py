@@ -1,5 +1,5 @@
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import Leaf, LParen, RParen, find_indentation, parenthesize
+from lib2to3.fixer_util import Leaf, LParen, RParen, find_indentation
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 from textwrap import TextWrapper
@@ -34,8 +34,6 @@ class FixMaximumLineLength(BaseFix):
         if any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')):
             # Needs to fix the prefix
             
-            trailing_spaces = len(node.prefix) - len(node.prefix.rstrip(u' '))
-            
             before_comments, comments, after_comments = tuplize_comments(node.prefix)
             comment_indent_level = comments.index(u'#')
             
@@ -46,7 +44,8 @@ class FixMaximumLineLength(BaseFix):
             wrapper = TextWrapper(width=MAX_CHARS, initial_indent=comment_prefix, subsequent_indent=comment_prefix)
             split_lines = wrapper.wrap(all_comments)
             
-            new_prefix = u'%s%s\n%s%s' % (before_comments, u'\n'.join(split_lines), u' ' * trailing_spaces, after_comments)  # Append the trailing spaces back
+            new_prefix = u'%s%s\n%s' % (before_comments, u'\n'.join(split_lines), after_comments)  # Append the trailing spaces back
+            #new_prefix = u'%s%s\n%s%s' % (before_comments, u'\n'.join(split_lines), u' ' * trailing_spaces, after_comments)  # Append the trailing spaces back
             node.prefix = new_prefix
             node.changed()
         else:

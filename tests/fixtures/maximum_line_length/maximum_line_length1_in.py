@@ -5,7 +5,7 @@ class tester:
     # and this is the second line
     def testering(self):
         print u"testering"
-
+    
     # this is another testerig comment that makes sure that we are able to test the fixer properly.
     def tester2():
         u'''This is a long docstring that is inside of a function which is inside of a class'''

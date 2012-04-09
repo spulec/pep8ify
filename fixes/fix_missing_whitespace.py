@@ -4,7 +4,9 @@ from lib2to3.pygram import python_symbols as symbols
 
 
 class FixMissingWhitespace(BaseFix):
-    u''' Each comma, semicolon or colon should be followed by whitespace.'''
+    u'''
+    Each comma, semicolon or colon should be followed by whitespace.
+    '''
     
     def match(self, node):
         if node.type in (token.COLON, token.COMMA, token.SEMI) and node.get_suffix() != u" ":

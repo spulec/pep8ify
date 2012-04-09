@@ -6,9 +6,8 @@ from lib2to3.pygram import python_symbols as symbols
 
 
 class FixImportsOnSeparateLines(BaseFix):
-    u''' No line should be greater than 80 characters.
+    u'''
     Imports should usually be on separate lines.
-    
     '''
     
     def match(self, node):
