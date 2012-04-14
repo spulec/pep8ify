@@ -65,8 +65,8 @@ class FixCompoundStatements(BaseFix):
     def match(self, node):
         results = {}
         if node.prev_sibling and isinstance(node.prev_sibling, Leaf) and node.prev_sibling.type == token.COLON and node.type != symbols.suite:
-            # If it's inside a lambda definition, leave it alone
-            if node.parent.type == symbols.lambdef:
+            # If it's inside a lambda definition or a subscript or sliceop, leave it alone
+            if node.parent.type in [symbols.lambdef, symbols.subscript, symbols.sliceop, symbols.dictsetmaker]:
                 pass
             else:
                 results["colon"] = True

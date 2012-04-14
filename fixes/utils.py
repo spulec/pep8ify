@@ -47,6 +47,10 @@ def tuplize_comments(prefix):
 
     if not prefix:
         return (u'', u'', u'')
+    
+    # If there are no nelwines, this was just a trailing comment. Leave it alone.
+    if not prefix.count(u'\n'):
+        return (u'', prefix, u'')
 
     if prefix.count("#"):
         whitespace_before_first_comment = prefix[:prefix.index(u"#")]

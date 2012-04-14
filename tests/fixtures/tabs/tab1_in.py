@@ -1,5 +1,6 @@
 import foo
 
+
 class testing():
 	
 	def tester(self):
