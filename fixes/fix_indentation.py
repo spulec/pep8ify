@@ -35,7 +35,8 @@ class FixIndentation(BaseFix):
         new_prefix = node.prefix
         comment_indent = node.prefix.find(u"#")
         if comment_indent > -1:
-            if comment_indent == node.next_sibling.children[0].column:
+            # Determine if we should align the comment with the line before or after
+            if comment_indent == node.next_sibling.leaves().next().column:
                 # This comment should be aligned with its next_sibling
                 new_comment_indent = new_value
             else:
@@ -45,7 +46,7 @@ class FixIndentation(BaseFix):
             # Split the lines of comment and prepend them with the new indent value
             new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) for line in new_prefix.split('\n')]).rstrip(u' ')
 
-        if node.value != new_value:
+        if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
             node.prefix = new_prefix
             node.changed()
