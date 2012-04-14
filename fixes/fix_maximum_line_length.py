@@ -22,7 +22,8 @@ class FixMaximumLineLength(BaseFix):
     '''
     
     def match(self, node):
-        if node.type == token.NEWLINE or node.type == token.COLON:
+        if node.type in [token.NEWLINE, token.COLON]:
+            # Sometimes the newline is wrapped into the next node, so we need to check the colons also.
             if node.column > MAX_CHARS:
                 return True
         elif any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
@@ -37,7 +38,8 @@ class FixMaximumLineLength(BaseFix):
         else:
             # Need to fix the node itself
             node_to_split = node.prev_sibling
-            if not node_to_split:
+            if not node_to_split or node_to_split.was_checked:
+                # If doesn't exist or already checked, return
                 return
             if node_to_split.type == token.STRING:
                 self.fix_docstring(node_to_split)
@@ -108,6 +110,8 @@ class FixMaximumLineLength(BaseFix):
 
         parent_depth = find_indentation(node_to_split)
         new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
+        # if first_leaf_gt_limit.value == u'comments_start':
+        #     import pdb;pdb.set_trace()
         first_leaf_gt_limit.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), first_leaf_gt_limit])
         first_leaf_gt_limit.changed()
 
