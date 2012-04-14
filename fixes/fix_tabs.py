@@ -9,12 +9,12 @@ class FixTabs(BaseFix):
     '''
     
     def match(self, node):
-        if node.prefix.count('\t') or (isinstance(node, Leaf)
-            and node.value.count('\t')):
+        if node.prefix.count(u'\t') or (isinstance(node, Leaf)
+            and node.value.count(u'\t')):
             return True
         return False
     
     def transform(self, node, results):
-        node.prefix = node.prefix.replace('\t', u'    ')
-        node.value = node.value.replace('\t', u'    ')
+        node.prefix = node.prefix.replace(u'\t', u'    ')
+        node.value = node.value.replace(u'\t', u'    ')
         node.changed()

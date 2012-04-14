@@ -1,5 +1,4 @@
--pep8/pyflake code
--Test it against own codebase
+-Test it against own codebase and pep8 code after
 -Get README/Documentation setup
 
 
@@ -7,3 +6,4 @@
 
 Issues
 -pep8 complains about maximum line length out line 52
+-fix max chars doesn't work for multiple lines

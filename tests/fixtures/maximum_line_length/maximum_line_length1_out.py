@@ -1,6 +1,6 @@
 class tester:
-    u"""this is testing the maximum length of a docstring and it is very
-        long to ensure that the test will work well"""
+    u"""this is testing the maximum length of a docstring and it is very long
+        to ensure that the test will work well"""
 
     # This is a multiple line comment in front of a method that is defined
     # inside of a class and this is the second line

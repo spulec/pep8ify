@@ -16,8 +16,7 @@ def get_leaves_after_last_newline(node):
     for index, leaf in enumerate(all_leaves):
         if leaf.type == token.NEWLINE:
             last_newline_leaf_index = index
-    leaves_after_last_newline = all_leaves[last_newline_leaf_index + 1:]
-    return leaves_after_last_newline
+    return all_leaves[last_newline_leaf_index + 1:]
 
 
 def get_whitespace_before_definition(node):
@@ -40,22 +39,22 @@ def has_parent(node, symbol_type):
     if node.parent:
         return node.parent.type == symbol_type or has_parent(node.parent, symbol_type)
 
+
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
     # Given u'\n\n\n    # test comment\n    \n', returns ([u'\n\n\n'], [u'    # test comment\n'], [u'    \n'])
-    # We strip the last newline after a set of comments since it doesn't cound toward line counts
 
     if not prefix:
         return (u'', u'', u'')
     
-    # If there are no nelwines, this was just a trailing comment. Leave it alone.
+    # If there are no newlines, this was just a trailing comment. Leave it alone.
     if not prefix.count(u'\n'):
         return (u'', prefix, u'')
 
     if prefix.count("#"):
         whitespace_before_first_comment = prefix[:prefix.index(u"#")]
         start_of_comment = whitespace_before_first_comment.rfind(u'\n')
-        comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()  # Leave the trailing newline from the comment per the docstring
+        comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()  # Add a single newline back that was stripped
     else:
         if prefix.count(u'\n'):
             comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line

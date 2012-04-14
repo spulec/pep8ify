@@ -11,8 +11,9 @@ class FixImportsOnSeparateLines(BaseFix):
     '''
     
     def match(self, node):
-        if node.type == symbols.simple_stmt and node.children[0].type == symbols.import_name \
-            and node.children[0].children[1].type == symbols.dotted_as_names:
+        if (node.type == symbols.simple_stmt and
+            node.children[0].type == symbols.import_name and
+            node.children[0].children[1].type == symbols.dotted_as_names):
             return node.children[0].children[1].children
         return False
     
@@ -22,15 +23,13 @@ class FixImportsOnSeparateLines(BaseFix):
         
         new_nodes = []
         for index, module_name in enumerate(child_imports):
-            if index:
-                new_nodes.append(Node(symbols.simple_stmt,
-                                [Node(symbols.import_name, [Leaf(token.NAME, u'import', prefix=current_indentation),
-                                Leaf(token.NAME, module_name, prefix=u" ")]), Leaf(token.NEWLINE, u'\n')]))
-            else:
+            new_prefix = current_indentation
+            if not index:
                 # Don't add more indentation if this is the first one
-                new_nodes.append(Node(symbols.simple_stmt,
-                                [Node(symbols.import_name, [Leaf(token.NAME, u'import'),
-                                Leaf(token.NAME, module_name, prefix=u" ")]), Leaf(token.NEWLINE, u'\n')]))
+                new_prefix = None
+            new_nodes.append(Node(symbols.simple_stmt,
+                            [Node(symbols.import_name, [Leaf(token.NAME, u'import', prefix=new_prefix),
+                            Leaf(token.NAME, module_name, prefix=u" ")]), Leaf(token.NEWLINE, u'\n')]))
         
         node.replace(new_nodes)
         node.changed()

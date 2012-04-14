@@ -14,14 +14,14 @@ class FixWhitespaceBeforeInlineComment(BaseFix):
     _accept_type = token.NEWLINE
     
     def match(self, node):
-        position = node.prefix.find(u"#")
-        if -1 < position:# < 2 or node.prefix[position + 1] != u" ":
+        if node.prefix.count(u"#"):
             return True
         return False
     
     def transform(self, node, results):
         position = node.prefix.find(u"#")
         if position > 2:
+            # Already more than two spaces before comment
             whitespace_before, comment_after = node.prefix.split(u"#", 1)
             node.prefix = u"%s# %s" % (whitespace_before, comment_after.lstrip())
         else:

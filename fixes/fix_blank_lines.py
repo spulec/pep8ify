@@ -26,21 +26,22 @@ class FixBlankLines(BaseFix):
         return False
 
     def transform(self, node, results):
-        
         # Sometimes newlines are in prefix of current node, sometimes they're in prefix of the prev sibling
         if node.prefix:
-            using_node_prefix = True
-            previous_whitespace = node.prefix
+            newline_node = node
         else:
-            using_node_prefix = False
-            whitespace_before_def = get_whitespace_before_definition(node)
-            if not whitespace_before_def:
+            newline_node = get_whitespace_before_definition(node)
+            if not newline_node:
                 # No previous node, must be the first node.
                 return
-            previous_whitespace = whitespace_before_def.prefix
-        
-        before_comments, comments, after_comments = tuplize_comments(previous_whitespace)
-        
+
+        min_lines_between_defs, max_lines_between_defs = self.get_newline_limits(node)
+        new_prefix = self.trim_comments(newline_node.prefix, min_lines_between_defs, max_lines_between_defs)
+    
+        newline_node.prefix = new_prefix
+        newline_node.changed()
+
+    def get_newline_limits(self, node):
         if node.type == symbols.simple_stmt or has_parent(node, symbols.simple_stmt):
             max_lines_between_defs = 1
             min_lines_between_defs = 0
@@ -52,6 +53,10 @@ class FixBlankLines(BaseFix):
             # Top-level definition
             max_lines_between_defs = 2
             min_lines_between_defs = 2
+        return (min_lines_between_defs, max_lines_between_defs)
+
+    def trim_comments(self, previous_whitespace, min_lines_between_defs, max_lines_between_defs):
+        before_comments, comments, after_comments = tuplize_comments(previous_whitespace)
         
         if before_comments.count(u"\n") > max_lines_between_defs:
             before_comments = u'\n' * max_lines_between_defs
@@ -68,16 +73,4 @@ class FixBlankLines(BaseFix):
         comment_lines = before_comments.count(u"\n") + after_comments.count(u"\n")
         if comment_lines < min_lines_between_defs:
             before_comments += (min_lines_between_defs - comment_lines) * u'\n'
-        
-        if using_node_prefix:
-            node.prefix = u'%s%s%s' % (before_comments, comments, after_comments)
-            node.changed()
-        else:
-            whitespace_before_def.prefix = u'%s%s%s' % (before_comments, comments, after_comments)
-            whitespace_before_def.changed()
-
-
-def newlines_before_comments(split_lines):
-    for index, line in enumerate(split_lines):
-        if line != u'':
-            return index
+        return u'%s%s%s' % (before_comments, comments, after_comments)

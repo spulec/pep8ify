@@ -1,5 +1,6 @@
 import math
-import sys, os
+import sys
+import os
 
 from subprocess import Popen, PIPE
 from myclas import MyClass
@@ -9,11 +10,13 @@ import foo.bar.yourclass
 
 
 class the_class():
-    import os, sys
+    import os
+    import sys
     
     def test_func():
         import math
     
     def other_func():
-        import os, sys
+        import os
+        import sys
         import math

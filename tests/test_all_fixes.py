@@ -16,6 +16,8 @@ def setup():
 
 
 def teardown():
+    # This finds all of the backup files that we created and replaces
+    # the *_in.py files that were created for testing
     potential_backups = []
     for root, dirs, files in os.walk(FIXTURE_PATH):
         for filename in files:
@@ -63,8 +65,8 @@ def check_fixture(in_file, out_file, fixer):
         main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
     else:
         main("pep8ify.fixes", args=['-w', in_file])
-    in_file_contents = open(in_file).readlines()
-    out_file_contents = open(out_file).readlines()
+    in_file_contents = open(in_file, 'r').readlines()
+    out_file_contents = open(out_file, 'r').readlines()
     assert in_file_contents == out_file_contents, \
         "in_file doesn't match out_file with \n%s\n:\n%s" \
         % (in_file_contents, out_file_contents)
