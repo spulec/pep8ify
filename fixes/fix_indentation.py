@@ -62,7 +62,13 @@ class FixIndentation(BaseFix):
         self.line_num = node.lineno
         if node.column:
             # Partial outdent, remove higher indents
-            self.indents = self.indents[:self.indents.index(node.column) + 1]
+            tab_count = node.prefix.count(u'\t')
+            if tab_count:
+                # If tabs, indent level is number of tabs
+                indent_level = tab_count * 4
+            else:
+                indent_level = node.column
+            self.indents = self.indents[:self.indents.index(indent_level) + 1]
             # For OUTDENTS, the indentation is in the last line of the prefix
             self.fix_indent_prefix(node)
         else:
