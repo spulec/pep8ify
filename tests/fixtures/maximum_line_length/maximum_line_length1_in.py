@@ -26,6 +26,18 @@ that_other_thing_that_makes_this_over_eighty_chars_total = "testing2"
 testering = the_fixering + that_other_thing_that_makes_this_over_eighty_chars_total
 
 
+def tuplize_comments(prefix):
+    prefix = "foo"
+    if prefix.count("#"):
+        pass
+    else:
+        if prefix.count(u'\n'):
+            comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line
+        else:
+            comments = prefix
+    comments_start = prefix.index(comments)
+
+
 def tester4():
     # This is a docstring that starts with a '#' and is greater than the max chars
 

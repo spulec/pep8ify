@@ -50,18 +50,29 @@ class FixMaximumLineLength(BaseFix):
         # Combine all comment lines together
         all_comments = u' '.join([line.replace(u'#', '', 1).lstrip() for line in comments.split(u'\n')])
 
-        comment_indent_level = comments.index(u'#')
-        comment_prefix = u'%s# ' % (u' ' * comment_indent_level)
+        # It's an inline comment if it has not newlines
+        is_inline_comment = not node.prefix.count(u'\n')
 
-        wrapper = TextWrapper(width=MAX_CHARS, initial_indent=comment_prefix, subsequent_indent=comment_prefix)
+        initial_indent_level = comments.index(u'#')
+        if is_inline_comment:
+            # If inline comment, find where the prev sibling started to know
+            # how to indent lines
+            initial_indent_level = node.prev_sibling.children[0].column
+        indent = u'%s# ' % (u' ' * initial_indent_level)
+
+        wrapper = TextWrapper(width=MAX_CHARS, initial_indent=indent, subsequent_indent=indent)
         split_lines = wrapper.wrap(all_comments)
 
-        #if node.prefix.count(u'\n'): import pdb;pdb.set_trace()
-        # We need to add back a newline that was lost above
-        # after_comments = u"\n%s" % after_comments
-
-        node.prefix = u'%s%s\n%s' % (before_comments, u'\n'.join(split_lines), after_comments)  # Append the trailing spaces back
-        node.changed()
+        if is_inline_comment:
+            # If inline comment is too long, we'll move it to the next line
+            split_lines[0] = "\n%s" % split_lines[0]
+        else:
+            #We need to add back a newline that was lost above
+            after_comments = u"\n%s" % after_comments
+        new_prefix = u'%s%s%s' % (before_comments, u'\n'.join(split_lines), after_comments)  # Append the trailing spaces back
+        if node.prefix != new_prefix:
+            node.prefix = new_prefix
+            node.changed()
 
     def fix_docstring(self, node_to_split):
         # docstrings
