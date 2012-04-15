@@ -56,6 +56,10 @@ class FixMaximumLineLength(BaseFix):
         wrapper = TextWrapper(width=MAX_CHARS, initial_indent=comment_prefix, subsequent_indent=comment_prefix)
         split_lines = wrapper.wrap(all_comments)
 
+        #if node.prefix.count(u'\n'): import pdb;pdb.set_trace()
+        # We need to add back a newline that was lost above
+        # after_comments = u"\n%s" % after_comments
+
         node.prefix = u'%s%s\n%s' % (before_comments, u'\n'.join(split_lines), after_comments)  # Append the trailing spaces back
         node.changed()
 

@@ -10,10 +10,16 @@ class FixIndentation(BaseFix):
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
     '''
-    
+
     indents = []
     line_num = 0
-    
+
+    def __init__(self, options, log):
+        self.indents = []
+        self.line_num = 0
+
+        super(FixIndentation, self).__init__(options, log)
+
     def match(self, node):
         if isinstance(node, Leaf):
             return True
@@ -33,7 +39,8 @@ class FixIndentation(BaseFix):
         new_value = u' ' * 4 * len(self.indents)
 
         new_prefix = node.prefix
-        comment_indent = node.prefix.find(u"#")
+        # Strip any previous newlines since they shouldn't change the comment indent
+        comment_indent = node.prefix.strip(u'\n').find(u"#")
         if comment_indent > -1:
             # Determine if we should align the comment with the line before or after
             if comment_indent == node.next_sibling.leaves().next().column:

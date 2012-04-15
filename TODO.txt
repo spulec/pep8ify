@@ -1,4 +1,3 @@
-- fix this issue with maximum line length and NLs and COLONS
 - fix indentation is changing continued lines. fix, try looking at pep8.
 -Test it against own codebase and pep8 code after
 -Get README/Documentation setup

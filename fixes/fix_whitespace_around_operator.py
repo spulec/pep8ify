@@ -38,17 +38,23 @@ class FixWhitespaceAroundOperator(BaseFix):
             self.spaces(node)
 
     def rstrip(self, node):
-        node.next_sibling.prefix = u""
-        node.next_sibling.changed()
+        if not node.next_sibling.prefix.count(u'\n'):
+            # If the prefix contains a newline, we don't need to add spaces
+            node.next_sibling.prefix = u""
+            node.next_sibling.changed()
 
     def no_spaces(self, node):
         node.prefix = u""
-        node.next_sibling.prefix = u""
         node.changed()
-        node.next_sibling.changed()
+        if not node.next_sibling.prefix.count(u'\n'):
+            # If the prefix contains a newline, we don't need to add spaces
+            node.next_sibling.prefix = u""
+            node.next_sibling.changed()
 
     def spaces(self, node):
         node.prefix = u" "
-        node.next_sibling.prefix = u" "
         node.changed()
-        node.next_sibling.changed()
+        if not node.next_sibling.prefix.count(u'\n'):
+            # If the prefix contains a newline, we don't need to add spaces
+            node.next_sibling.prefix = u" "
+            node.next_sibling.changed()

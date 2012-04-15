@@ -2,6 +2,7 @@ import sys
 
 
 def tester_method():
+
   # Comment 1
   # Comment 3
   def inner_method():

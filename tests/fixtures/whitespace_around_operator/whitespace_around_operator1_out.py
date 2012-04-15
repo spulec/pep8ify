@@ -12,6 +12,9 @@ c = (a + b) * (a - b)
 foo(bar, key='word', *args, **kwargs)
 foo(bar, key='word', *args, **kwargs)
 
+x = (3 + 
+     2)
+
 
 def func(foo, bar='tester'):
     return 5
