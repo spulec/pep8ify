@@ -8,6 +8,9 @@ def tester_method():
         pass
 
     def inner2():
+        # This is a two line
+        # comment
+
         pass
 
 

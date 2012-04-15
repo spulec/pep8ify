@@ -44,7 +44,7 @@ class FixIndentation(BaseFix):
                 new_comment_indent = u' ' * 4 * (len(self.indents) - 1)
 
             # Split the lines of comment and prepend them with the new indent value
-            new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) for line in new_prefix.split('\n')]).rstrip(u' ')
+            new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).rstrip(u' ')
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
