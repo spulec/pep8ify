@@ -1,3 +1,5 @@
+BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
+    '%=', '^=', '&=', '|='])
 
 a = range(10)
 b = range(5)

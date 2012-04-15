@@ -36,10 +36,8 @@ class FixMaximumLineLength(BaseFix):
             # Need to fix the prefix
             self.fix_prefix(node)
         else:
-            # Need to fix the node itself
             node_to_split = node.prev_sibling
-            if not node_to_split or node_to_split.was_checked:
-                # If doesn't exist or already checked, return
+            if not node_to_split:
                 return
             if node_to_split.type == token.STRING:
                 self.fix_docstring(node_to_split)
@@ -100,6 +98,10 @@ class FixMaximumLineLength(BaseFix):
                 first_leaf_gt_limit = leaf
             child_leaves.append(leaf)
 
+        if first_leaf_gt_limit.was_changed:
+            # It's possible this node was already fixed by another pass-through
+            return
+
         # Since this node will be at the beginning of the line, strip the prefix
         first_leaf_gt_limit.prefix = first_leaf_gt_limit.prefix.strip()
 
@@ -110,8 +112,7 @@ class FixMaximumLineLength(BaseFix):
 
         parent_depth = find_indentation(node_to_split)
         new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
-        # if first_leaf_gt_limit.value == u'comments_start':
-        #     import pdb;pdb.set_trace()
+
         first_leaf_gt_limit.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), first_leaf_gt_limit])
         first_leaf_gt_limit.changed()
 

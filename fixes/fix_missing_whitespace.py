@@ -10,6 +10,9 @@ class FixMissingWhitespace(BaseFix):
     
     def match(self, node):
         if node.type in (token.COLON, token.COMMA, token.SEMI) and node.get_suffix() != u" ":
+            # If there is a newline after, no space
+            if node.get_suffix().find(u'\n') == 0:
+                return False
             # If we are using slice notation, no space necessary
             if node.parent.type in [symbols.subscript, symbols.sliceop]:
                 return False
