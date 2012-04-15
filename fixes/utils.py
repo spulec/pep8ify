@@ -2,7 +2,7 @@ from lib2to3.pgen2 import token
 
 BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
-    '%',  '^',  '&',  '|',  '=',  '/',  '//',  '<',  '>',  '<<'])
+    '%', '^', '&', '|', '=', '/', '//', '<', '>', '<<'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 
