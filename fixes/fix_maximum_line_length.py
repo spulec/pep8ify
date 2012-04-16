@@ -135,8 +135,8 @@ class FixMaximumLineLength(BaseFix):
         self.parenthesize_parent(node_to_split, breaking_on_func_call)
 
     def parenthesize_parent(self, node_to_split, breaking_on_func_call):
-        if node_to_split.type == symbols.print_stmt:
-            self.parenthesize_print_stmt(node_to_split)
+        if node_to_split.type in [symbols.print_stmt, symbols.return_stmt]:
+            self.parenthesize_print_or_return_stmt(node_to_split)
         elif node_to_split.type == symbols.expr_stmt:
             self.parenthesize_expr_stmt(node_to_split)
         elif node_to_split.type in [symbols.power, symbols.atom]:
@@ -161,8 +161,9 @@ class FixMaximumLineLength(BaseFix):
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
-    def parenthesize_print_stmt(self, node_to_split):
+    def parenthesize_print_or_return_stmt(self, node_to_split):
         # print "hello there"
+        # return a, b
         if node_to_split.children[1] != LParen():
             # node_to_split.children[0] is the "print" literal
             # strip the current 1st child, since we will be prepending an LParen
@@ -173,7 +174,7 @@ class FixMaximumLineLength(BaseFix):
             node_to_split.changed()
 
     def parenthesize_import_stmt(self, node_to_split):
-        # print "hello there"
+        # from x import foo, bar
         import_as_names = node_to_split.children[-1]
         if import_as_names.children[0] != LParen():
             # strip the current 1st child, since we will be prepending an LParen

@@ -75,4 +75,5 @@ def testing_func():
     if (node.type == symbols.funcdef and node.parent.type != symbols.decorated
         or node.type == symbols.classdef or node.type == symbols.decorated or
         node.type == symbols.simple_stmt):
-        return True
+        return(node.type, node.type2, node.type3, node.type4, node.type5, node
+            .type6)
