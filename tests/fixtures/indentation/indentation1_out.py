@@ -1,6 +1,12 @@
 import sys
 
 
+def testing_func():
+    if (x == 5 or
+        x == 7):
+        pass
+
+
 def tester_method():
 
     # Comment 1

@@ -1,6 +1,9 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import Leaf
 from lib2to3.pgen2 import token
+from lib2to3.pygram import python_symbols as symbols
+
+from .utils import has_parent
 
 
 class FixIndentation(BaseFix):
@@ -78,15 +81,22 @@ class FixIndentation(BaseFix):
     def transform_newline(self, node):
         self.line_num = node.lineno
         if self.indents:
-            self.fix_indent_prefix(node)
+            self.fix_indent_prefix(node, newline=True)
         else:
             # First line, no need to do anything
             pass
 
-    def fix_indent_prefix(self, node):
+    def fix_indent_prefix(self, node, newline=False):
         if node.prefix:
+            new_indent = len(self.indents)
+            if newline and has_parent(node, symbols.atom):
+                # Don't reindent continuing atoms that are already indented past where they need to be.
+                current_indent = len(node.prefix.replace(u'\n', u'').replace(u'\t', u' ' * 4))
+                if current_indent >= new_indent:
+                    return
+
             prefix_lines = node.prefix.split('\n')[:-1]
-            prefix_lines.append(u' ' * 4 * len(self.indents))
+            prefix_lines.append(u' ' * 4 * new_indent)
             new_prefix = '\n'.join(prefix_lines)
             if node.prefix != new_prefix:
                 node.prefix = new_prefix

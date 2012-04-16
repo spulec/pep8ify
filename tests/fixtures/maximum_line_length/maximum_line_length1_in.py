@@ -53,3 +53,9 @@ def tester_func(param1=u'param_value1', param2=u'param_value2', param3=u'param_v
     print "good testing"
 
 tester_func(param1=u'param_value1', param2=u'param_value2', param3=u'param_value3', param4=u'param_value4')
+
+
+def testing_func():
+    if (node.type == symbols.funcdef and node.parent.type != symbols.decorated
+        or node.type == symbols.classdef or node.type == symbols.decorated or node.type == symbols.simple_stmt):
+        return True

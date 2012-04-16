@@ -45,7 +45,7 @@ def test_all_fixtures():
         # all fixers.
         for in_file, out_file in in_and_out_files_from_directory(root):
             #if root == FIXTURE_PATH:
-            fixer_to_run = None
+            fixer_to_run = None# import pdb;pdb.set_trace()
             # else:
             #fixer_to_run = root.replace(FIXTURE_PATH, "")
             

@@ -141,9 +141,25 @@ class FixMaximumLineLength(BaseFix):
             self.parenthesize_expr_stmt(node_to_split)
         elif node_to_split.type in [symbols.power, symbols.atom]:
             self.parenthesize_call_stmt(node_to_split, breaking_on_func_call)
+        elif node_to_split.type == symbols.import_from:
+            self.parenthesize_import_stmt(node_to_split)
+        elif node_to_split.type in [symbols.or_test, symbols.comparison]:
+            self.parenthesize_test(node_to_split)
         elif node_to_split.type == symbols.parameters:
             # Paramteres are always parenthesized already
             pass
+        else:
+            pass
+
+    def parenthesize_test(self, node_to_split):
+        if node_to_split.children[0] != LParen():
+            # node_to_split.children[0] is the "print" literal
+            # strip the current 1st child, since we will be prepending an LParen
+            node_to_split.children[0].prefix = node_to_split.children[0].prefix.strip()
+            node_to_split.children[0].changed()
+            node_to_split.insert_child(0, LParen())
+            node_to_split.append_child(RParen())
+            node_to_split.changed()
 
     def parenthesize_print_stmt(self, node_to_split):
         # print "hello there"
@@ -155,6 +171,20 @@ class FixMaximumLineLength(BaseFix):
             node_to_split.insert_child(1, LParen())
             node_to_split.append_child(RParen())
             node_to_split.changed()
+
+    def parenthesize_import_stmt(self, node_to_split):
+        # print "hello there"
+        import_as_names = node_to_split.children[-1]
+        if import_as_names.children[0] != LParen():
+            # strip the current 1st child, since we will be prepending an LParen
+            import_as_names.children[0].prefix = import_as_names.children[0].prefix.strip()
+            import_as_names.children[0].changed()
+            # We set a space prefix since this is after the '='
+            left_paren = LParen()
+            left_paren.prefix = u" "
+            import_as_names.insert_child(0, left_paren)
+            import_as_names.append_child(RParen())
+            import_as_names.changed()
 
     def parenthesize_expr_stmt(self, node_to_split):
         # x = "%s%s" % ("foo", "bar")

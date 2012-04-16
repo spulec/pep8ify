@@ -20,8 +20,8 @@ class FixBlankLines(BaseFix):
     def match(self, node):
         # Get classes, non-decorateds funcs, decorators, and simple statements. Ignore decorateds funcs
         # since they will be taken care of with the decorator.
-        if (node.type == symbols.funcdef and node.parent.type != symbols.decorated) \
-            or node.type == symbols.classdef or node.type == symbols.decorated or node.type == symbols.simple_stmt:
+        if (node.type == symbols.funcdef and node.parent.type != symbols.decorated
+            or node.type == symbols.classdef or node.type == symbols.decorated or node.type == symbols.simple_stmt):
             return True
         return False
 
