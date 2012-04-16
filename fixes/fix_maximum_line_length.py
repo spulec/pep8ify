@@ -143,12 +143,11 @@ class FixMaximumLineLength(BaseFix):
             self.parenthesize_call_stmt(node_to_split, breaking_on_func_call)
         elif node_to_split.type == symbols.import_from:
             self.parenthesize_import_stmt(node_to_split)
-        elif node_to_split.type in [symbols.or_test, symbols.comparison]:
+        elif node_to_split.type in [symbols.or_test, symbols.and_test, 
+            symbols.not_test, symbols.test, symbols.arith_expr, symbols.comparison]:
             self.parenthesize_test(node_to_split)
         elif node_to_split.type == symbols.parameters:
             # Paramteres are always parenthesized already
-            pass
-        else:
             pass
 
     def parenthesize_test(self, node_to_split):
