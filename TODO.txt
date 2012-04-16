@@ -1,4 +1,4 @@
-
+-Fix indentation still messes up some continued lines(fix_missing_newline:22)
 -Check that every .changed() first checks if we're actually changing
 -Test it against own codebase and pep8 code after
 -Get README/Documentation setup

@@ -207,6 +207,9 @@ class FixMaximumLineLength(BaseFix):
             # We don't need to add parens if we are calling a func and not splitting on a func call
             pass
         elif node_to_split.children[0] != LParen():
-            node_to_split.insert_child(0, LParen())
+            # Since this can be at the beginning of a line, we can't just
+            # strip the prefix, we need to keep leading whitespace
+            node_to_split.children[0].prefix = u"%s(" % node_to_split.children[0].prefix
+            node_to_split.children[0].changed()
             node_to_split.append_child(RParen())
             node_to_split.changed()
