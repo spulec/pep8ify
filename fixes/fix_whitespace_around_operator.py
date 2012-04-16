@@ -39,9 +39,8 @@ class FixWhitespaceAroundOperator(BaseFix):
 
     def rstrip(self, node):
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u"" and not next_sibling.prefix.count(u'\n'):
-            # Only fix if the prefix doesn't contain a newline
-            next_sibling.prefix = u""
+        if next_sibling.prefix != u"":
+            next_sibling.prefix = next_sibling.prefix.lstrip(u' \t')
             next_sibling.changed()
 
     def no_spaces(self, node):
@@ -49,17 +48,15 @@ class FixWhitespaceAroundOperator(BaseFix):
             node.prefix = u""
             node.changed()
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u"" and not next_sibling.prefix.count(u'\n'):
-            # Only fix if the prefix doesn't contain a newline
-            next_sibling.prefix = u""
+        if next_sibling.prefix != u"":
+            next_sibling.prefix = next_sibling.prefix.lstrip(u' \t')
             next_sibling.changed()
 
     def spaces(self, node):
         if node.prefix != u" ":
-            node.prefix = u" "
+            node.prefix = u" %s" % node.prefix.lstrip(u' \t')
             node.changed()
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u" " and not next_sibling.prefix.count(u'\n'):
-            # Only fix if the prefix doesn't contain a newline
-            next_sibling.prefix = u" "
+        if next_sibling.prefix != u" ":
+            next_sibling.prefix = u" %s" % next_sibling.prefix.lstrip(u' \t')
             next_sibling.changed()
