@@ -1,9 +1,8 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import Leaf
 from lib2to3.pgen2 import token
-from lib2to3.pygram import python_symbols as symbols
 
-from .utils import has_parent
+from .utils import prefix_indent_count
 
 
 class FixIndentation(BaseFix):
@@ -16,10 +15,13 @@ class FixIndentation(BaseFix):
 
     indents = []
     line_num = 0
+    prev_line_indent = 0
 
     def __init__(self, options, log):
         self.indents = []
         self.line_num = 0
+        # This is the indent of the previous line before it was modified
+        self.prev_line_indent = 0
 
         super(FixIndentation, self).__init__(options, log)
 
@@ -38,7 +40,11 @@ class FixIndentation(BaseFix):
 
     def transform_indent(self, node):
         self.line_num = node.lineno
-        self.indents.append(len(node.value.replace(u'\t', u' ' * 4)))
+        # Indent spacing is stored in the value, node the prefix
+        self.prev_line_indent = len(node.value.replace(u'\t', u' ' * 4))
+        self.indents.append(self.prev_line_indent)
+        
+
         new_value = u' ' * 4 * len(self.indents)
 
         new_prefix = node.prefix
@@ -63,6 +69,8 @@ class FixIndentation(BaseFix):
 
     def transform_outdent(self, node):
         self.line_num = node.lineno
+        self.prev_line_indent = prefix_indent_count(node)
+
         if node.column:
             # Partial outdent, remove higher indents
             tab_count = node.prefix.count(u'\t')
@@ -89,10 +97,10 @@ class FixIndentation(BaseFix):
     def fix_indent_prefix(self, node, newline=False):
         if node.prefix:
             new_indent = len(self.indents)
-            if newline and has_parent(node, symbols.atom):
-                # Don't reindent continuing atoms that are already indented past where they need to be.
-                current_indent = len(node.prefix.replace(u'\n', u'').replace(u'\t', u' ' * 4))
-                if current_indent >= new_indent:
+            if newline:
+                # Don't reindent continuing lines that are already indented past where they need to be.
+                current_indent = prefix_indent_count(node)
+                if current_indent > self.prev_line_indent:
                     return
 
             prefix_lines = node.prefix.split('\n')[:-1]

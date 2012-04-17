@@ -6,6 +6,10 @@ def testing_func():
         x == 7):
         pass
 
+    if not any(leaf.prefix.count('\n')
+               for leaf in leaves_after_last_newline):
+        pass
+
 
 def tester_method():
 

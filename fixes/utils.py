@@ -40,6 +40,10 @@ def has_parent(node, symbol_type):
         return node.parent.type == symbol_type or has_parent(node.parent, symbol_type)
 
 
+def prefix_indent_count(node):
+    return len(node.prefix.replace(u'\n', u'').replace(u'\t', u' ' * 4))
+
+
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
     # Given u'\n\n\n    # test comment\n    \n', returns ([u'\n\n\n'], [u'    # test comment\n'], [u'    \n'])
