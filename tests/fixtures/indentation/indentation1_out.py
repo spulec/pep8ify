@@ -6,8 +6,13 @@ def testing_func():
         x == 7):
         pass
 
-    if not any(leaf.prefix.count('\n')
-               for leaf in leaves_after_last_newline):
+    # Comment A
+    if not any(leaf.prefix.count(u'\n')
+                for leaf in leaves_after_last_newline):
+        pass
+    # Comment B
+    elif all(leaf.prefix.count(u'\t')
+                for leaf in leaves_after_last_newline):
         pass
 
 

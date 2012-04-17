@@ -43,7 +43,6 @@ class FixIndentation(BaseFix):
         # Indent spacing is stored in the value, node the prefix
         self.prev_line_indent = len(node.value.replace(u'\t', u' ' * 4))
         self.indents.append(self.prev_line_indent)
-        
 
         new_value = u' ' * 4 * len(self.indents)
 

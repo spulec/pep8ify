@@ -41,7 +41,8 @@ def has_parent(node, symbol_type):
 
 
 def prefix_indent_count(node):
-    return len(node.prefix.replace(u'\n', u'').replace(u'\t', u' ' * 4))
+    # Find the number of spaces preceding this line
+    return len(node.prefix.split(u'\n')[-1].replace(u'\t', u' ' * 4))
 
 
 def tuplize_comments(prefix):
