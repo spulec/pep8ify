@@ -26,8 +26,8 @@ def tester6():
     # punches them in the face, but we should fix it anyway
     print("this is going to be" + "test that ensures that" + tester9 +
         "will be fixed appropriately")
-    print("%s%s" % (tester9,
-        "and another string that will make the total length go over 80s"))
+    print "%s%s" % (tester9,
+        "and another string that will make the total length go over 80s")
 
 the_fixering = "testing"
 that_other_thing_that_makes_this_over_eighty_chars_total = "testing2"
@@ -47,6 +47,9 @@ def tuplize_comments(prefix):
         else:
             comments = prefix
     comments_start = prefix.index(comments)
+
+testing = tuplize_comments("this one string" +
+    "another string that makes this line too long")
 
 
 def tester4():

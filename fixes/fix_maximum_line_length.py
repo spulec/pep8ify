@@ -7,6 +7,8 @@ from textwrap import TextWrapper
 from .utils import tuplize_comments, get_quotes
 
 MAX_CHARS = 79
+OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
+CLOSING_TOKENS = [token.RPAR, token.RSQB, token.RBRACE]
 
 
 class FixMaximumLineLength(BaseFix):
@@ -105,13 +107,19 @@ class FixMaximumLineLength(BaseFix):
         node_to_split.changed()
 
     def fix_leaves(self, node_to_split):
-        child_leaves = []
         # The first leaf after the limit
         first_leaf_gt_limit = None
+        # We want to keep track of if we are breaking inside a parenth
+        open_count = 0
         for leaf in node_to_split.leaves():
             if leaf.column < MAX_CHARS:
                 first_leaf_gt_limit = leaf
-            child_leaves.append(leaf)
+            else:
+                break
+            if leaf.type in OPENING_TOKENS:
+                open_count += 1
+            if leaf.type in CLOSING_TOKENS:
+                open_count -= 1
 
         if first_leaf_gt_limit.was_changed:
             # It's possible this node was already fixed by another pass-through
@@ -131,8 +139,9 @@ class FixMaximumLineLength(BaseFix):
         first_leaf_gt_limit.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), first_leaf_gt_limit])
         first_leaf_gt_limit.changed()
 
-        # Parenthesize the parent since we inserted newlines between leaves
-        self.parenthesize_parent(node_to_split, breaking_on_func_call)
+        if open_count <= 0:
+            # Parenthesize the parent if we're not inside parenths, braces, brackets, since we inserted newlines between leaves
+            self.parenthesize_parent(node_to_split, breaking_on_func_call)
 
     def parenthesize_parent(self, node_to_split, breaking_on_func_call):
         if node_to_split.type in [symbols.print_stmt, symbols.return_stmt]:

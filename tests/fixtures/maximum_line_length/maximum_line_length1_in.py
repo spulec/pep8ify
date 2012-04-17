@@ -37,6 +37,8 @@ def tuplize_comments(prefix):
             comments = prefix
     comments_start = prefix.index(comments)
 
+testing = tuplize_comments("this one string" + "another string that makes this line too long")
+
 
 def tester4():
     # This is a docstring that starts with a '#' and is greater than the max chars
