@@ -8,7 +8,7 @@ import shutil
 
 from lib2to3.main import main
 
-FIXTURE_PATH = './tests/fixtures/'
+FIXTURE_PATH = u'./tests/fixtures/'
 
 
 def setup():
@@ -45,7 +45,7 @@ def test_all_fixtures():
         # all fixers.
         for in_file, out_file in in_and_out_files_from_directory(root):
             #if root == FIXTURE_PATH:
-            fixer_to_run = None# import pdb;pdb.set_trace()
+            fixer_to_run = None
             # else:
             #fixer_to_run = root.replace(FIXTURE_PATH, "")
             
@@ -65,8 +65,8 @@ def check_fixture(in_file, out_file, fixer):
         main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
     else:
         main("pep8ify.fixes", args=['-w', in_file])
-    in_file_contents = open(in_file, 'r').readlines()
-    out_file_contents = open(out_file, 'r').readlines()
+    in_file_contents = open(in_file, u'r').readlines()
+    out_file_contents = open(out_file, u'r').readlines()
     assert in_file_contents == out_file_contents, \
         "in_file doesn't match out_file with \n%s\n:\n%s" \
         % (in_file_contents, out_file_contents)
