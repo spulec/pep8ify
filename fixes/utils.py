@@ -59,7 +59,10 @@ def tuplize_comments(prefix):
     if prefix.count("#"):
         whitespace_before_first_comment = prefix[:prefix.index(u"#")]
         start_of_comment = whitespace_before_first_comment.rfind(u'\n')
-        comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()  # Add a single newline back that was stripped
+        if prefix.rfind(u'\n') > prefix.index(u'#'):
+            comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()  # Add a single newline back if it was stripped
+        else:
+            comments = prefix[start_of_comment + 1:].rstrip()
     else:
         if prefix.count(u'\n'):
             comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line

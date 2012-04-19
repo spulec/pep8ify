@@ -34,10 +34,11 @@ class FixMaximumLineLength(BaseFix):
         return False
     
     def transform(self, node, results):
-        if any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')):
+        if (any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')) or
+            (node.prefix.count(u"#") and node.column + len(node.prefix) > MAX_CHARS)):
             # Need to fix the prefix
             self.fix_prefix(node)
-        else:
+        if node.type in [token.NEWLINE, token.COLON] and node.column - len(node.prefix) > MAX_CHARS:
             node_to_split = node.prev_sibling
             if not node_to_split:
                 return
@@ -50,7 +51,7 @@ class FixMaximumLineLength(BaseFix):
         before_comments, comments, after_comments = tuplize_comments(node.prefix)
 
         # Combine all comment lines together
-        all_comments = u' '.join([line.replace(u'#', '', 1).lstrip() for line in comments.split(u'\n')])
+        all_comments = u' '.join([line.replace(u'#', u'', 1).lstrip() for line in comments.split(u'\n')])
 
         # It's an inline comment if it has not newlines
         is_inline_comment = not node.prefix.count(u'\n')
@@ -67,7 +68,7 @@ class FixMaximumLineLength(BaseFix):
 
         if is_inline_comment:
             # If inline comment is too long, we'll move it to the next line
-            split_lines[0] = "\n%s" % split_lines[0]
+            split_lines[0] = u"\n%s" % split_lines[0]
         else:
             #We need to add back a newline that was lost above
             after_comments = u"\n%s" % after_comments

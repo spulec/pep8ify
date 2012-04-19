@@ -1,3 +1,7 @@
+testing = tuplize_comments("this is a short string")  # This is an inline comment that goes over 79 chars
+testing = tuplize_comments("this is a longer string that breaks the 79 char limit")  # This is an inline comment that goes over 79 chars
+
+
 class tester:
     u"""this is testing the maximum length of a docstring and it is very long to ensure that the test will work well"""
 
