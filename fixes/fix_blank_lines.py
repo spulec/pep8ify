@@ -37,9 +37,10 @@ class FixBlankLines(BaseFix):
 
         min_lines_between_defs, max_lines_between_defs = self.get_newline_limits(node)
         new_prefix = self.trim_comments(newline_node.prefix, min_lines_between_defs, max_lines_between_defs)
-    
-        newline_node.prefix = new_prefix
-        newline_node.changed()
+
+        if newline_node.prefix != new_prefix:
+            newline_node.prefix = new_prefix
+            newline_node.changed()
 
     def get_newline_limits(self, node):
         if node.type == symbols.simple_stmt or has_parent(node, symbols.simple_stmt):

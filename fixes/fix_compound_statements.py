@@ -50,8 +50,9 @@ class FixCompoundStatements(BaseFix):
         for child in node.children:
             if child.type == token.SEMI:
                 # Strip any whitespace from the next sibling
-                child.next_sibling.prefix = child.next_sibling.prefix.lstrip()
-                child.next_sibling.changed()
+                if child.next_sibling.prefix != child.next_sibling.prefix.lstrip():
+                    child.next_sibling.prefix = child.next_sibling.prefix.lstrip()
+                    child.next_sibling.changed()
                 # Replace the semi with a newline
                 old_depth = find_indentation(child)
                 

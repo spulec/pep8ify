@@ -15,6 +15,9 @@ class FixTabs(BaseFix):
         return False
     
     def transform(self, node, results):
-        node.prefix = node.prefix.replace(u'\t', u'    ')
-        node.value = node.value.replace(u'\t', u'    ')
-        node.changed()
+        new_prefix = node.prefix.replace(u'\t', u'    ')
+        new_value = node.value.replace(u'\t', u'    ')
+        if node.prefix != new_prefix or node.value != new_value:
+            node.prefix = new_prefix
+            node.value = new_value
+            node.changed()

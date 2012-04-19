@@ -22,8 +22,10 @@ class FixExtraneousWhitespace(BaseFix):
     
     def transform(self, node, results):
         if node.type in RSTRIP_TOKENS and node.get_suffix():
-            node.next_sibling.prefix = node.next_sibling.prefix.rstrip()
-            node.next_sibling.changed()
+            if node.next_sibling.prefix != node.next_sibling.prefix.rstrip():
+                node.next_sibling.prefix = node.next_sibling.prefix.rstrip()
+                node.next_sibling.changed()
         elif node.type in LSTRIP_TOKENS:
-            node.prefix = node.prefix.lstrip()
-            node.changed()
+            if node.prefix != node.prefix.lstrip():
+                node.prefix = node.prefix.lstrip()
+                node.changed()

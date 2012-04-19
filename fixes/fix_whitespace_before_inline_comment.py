@@ -23,7 +23,9 @@ class FixWhitespaceBeforeInlineComment(BaseFix):
         if position > 2:
             # Already more than two spaces before comment
             whitespace_before, comment_after = node.prefix.split(u"#", 1)
-            node.prefix = u"%s# %s" % (whitespace_before, comment_after.lstrip())
+            new_prefix = u"%s# %s" % (whitespace_before, comment_after.lstrip())
         else:
-            node.prefix = u"  # %s" % node.prefix.replace(u"#", u"", 1).lstrip()
-        node.changed()
+            new_prefix = u"  # %s" % node.prefix.replace(u"#", u"", 1).lstrip()
+        if node.prefix != new_prefix:
+            node.prefix = new_prefix
+            node.changed()

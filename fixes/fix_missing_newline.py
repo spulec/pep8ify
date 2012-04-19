@@ -25,5 +25,6 @@ class FixMissingNewline(BaseFix):
             return leaves_after_last_newline[0]
     
     def transform(self, node, leaf):
-        leaf.prefix = u'\n'
-        leaf.changed()
+        if leaf.prefix != u'\n':
+            leaf.prefix = u'\n'
+            leaf.changed()

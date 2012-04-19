@@ -161,11 +161,13 @@ class FixMaximumLineLength(BaseFix):
             pass
 
     def parenthesize_test(self, node_to_split):
-        if node_to_split.children[0] != LParen():
+        first_child = node_to_split.children[0]
+        if first_child != LParen():
             # node_to_split.children[0] is the "print" literal
             # strip the current 1st child, since we will be prepending an LParen
-            node_to_split.children[0].prefix = node_to_split.children[0].prefix.strip()
-            node_to_split.children[0].changed()
+            if first_child.prefix != first_child.prefix.strip():
+                first_child.prefix = first_child.prefix.strip()
+                first_child.changed()
             node_to_split.insert_child(0, LParen())
             node_to_split.append_child(RParen())
             node_to_split.changed()
@@ -173,11 +175,13 @@ class FixMaximumLineLength(BaseFix):
     def parenthesize_print_or_return_stmt(self, node_to_split):
         # print "hello there"
         # return a, b
-        if node_to_split.children[1] != LParen():
+        second_child = node_to_split.children[1]
+        if second_child != LParen():
             # node_to_split.children[0] is the "print" literal
             # strip the current 1st child, since we will be prepending an LParen
-            node_to_split.children[1].prefix = node_to_split.children[1].prefix.strip()
-            node_to_split.children[1].changed()
+            if second_child.prefix != second_child.prefix.strip():
+                second_child.prefix = second_child.prefix.strip()
+                second_child.changed()
             node_to_split.insert_child(1, LParen())
             node_to_split.append_child(RParen())
             node_to_split.changed()
@@ -187,8 +191,10 @@ class FixMaximumLineLength(BaseFix):
         import_as_names = node_to_split.children[-1]
         if import_as_names.children[0] != LParen():
             # strip the current 1st child, since we will be prepending an LParen
-            import_as_names.children[0].prefix = import_as_names.children[0].prefix.strip()
-            import_as_names.children[0].changed()
+            first_import_child = import_as_names.children[0]
+            if first_import_child.prefix != first_import_child.prefix.strip():
+                first_import_child.prefix = first_import_child.prefix.strip()
+                first_import_child.changed()
             # We set a space prefix since this is after the '='
             left_paren = LParen()
             left_paren.prefix = u" "
@@ -199,10 +205,12 @@ class FixMaximumLineLength(BaseFix):
     def parenthesize_expr_stmt(self, node_to_split):
         # x = "%s%s" % ("foo", "bar")
         value_node = node_to_split.children[2]
-        if value_node.children[0] != LParen():
+        first_child = value_node.children[0]
+        if first_child != LParen():
             # strip the current 1st child and add a space, since we will be prepending an LParen
-            value_node.children[0].prefix = value_node.children[0].prefix.strip()
-            value_node.children[0].changed()
+            if first_child.prefix != first_child.prefix.strip():
+                first_child.prefix = first_child.prefix.strip()
+                first_child.changed()
             
             # We set a space prefix since this is after the '='
             left_paren = LParen()
@@ -213,13 +221,14 @@ class FixMaximumLineLength(BaseFix):
 
     def parenthesize_call_stmt(self, node_to_split, breaking_on_func_call):
         # a.b().c()
+        first_child = node_to_split.children[0]
         if node_to_split.type == symbols.power and not breaking_on_func_call:
             # We don't need to add parens if we are calling a func and not splitting on a func call
             pass
-        elif node_to_split.children[0] != LParen():
+        elif first_child != LParen():
             # Since this can be at the beginning of a line, we can't just
             # strip the prefix, we need to keep leading whitespace
-            node_to_split.children[0].prefix = u"%s(" % node_to_split.children[0].prefix
-            node_to_split.children[0].changed()
+            first_child.prefix = u"%s(" % first_child.prefix
+            first_child.changed()
             node_to_split.append_child(RParen())
             node_to_split.changed()

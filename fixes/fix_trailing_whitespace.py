@@ -21,5 +21,7 @@ class FixTrailingWhitespace(BaseFix):
         return node.prefix != u''
     
     def transform(self, node, results):
-        node.prefix = node.prefix.rstrip()
-        node.changed()
+        new_prefix = node.prefix.rstrip()
+        if node.prefix != new_prefix:
+            node.prefix = new_prefix
+            node.changed()

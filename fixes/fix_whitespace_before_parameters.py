@@ -20,5 +20,6 @@ class FixWhitespaceBeforeParameters(BaseFix):
         return False
     
     def transform(self, node, results):
-        node.prefix = u""
-        node.changed()
+        if node.prefix != u"":
+            node.prefix = u""
+            node.changed()

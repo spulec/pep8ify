@@ -23,10 +23,13 @@ class FixTrailingBlankLines(BaseFix):
         for index, result in enumerate(results):
             if index:
                 # We've already stripped one newline. Strip any remaining
-                result.prefix = result.prefix.rstrip()
-                result.changed()
+                if result.prefix != result.prefix.rstrip():
+                    result.prefix = result.prefix.rstrip()
+                    result.changed()
             else:
                 # We haven't stripped any newlines yet. We need to strip all
                 # whitespace, but leave a single newline.
-                result.prefix = u'%s%s' % ('\n', result.prefix.rstrip())
-                result.changed()
+                new_prefix = u'%s%s' % ('\n', result.prefix.rstrip())
+                if result.prefix != new_prefix:
+                    result.prefix = new_prefix
+                    result.changed()
