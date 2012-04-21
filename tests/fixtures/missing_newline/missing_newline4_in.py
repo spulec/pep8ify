@@ -4,9 +4,9 @@ import foo as bar
 
 
 class testing():
-    
+
     foobar = []
-    
+
     def tester():
         pass
 

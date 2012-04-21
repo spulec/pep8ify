@@ -14,14 +14,19 @@ class FixTrailingWhitespace(BaseFix):
     
     [1] http://docs.python.org/reference/lexical_analysis.html#blank-lines
     '''
-    
-    _accept_type = token.NEWLINE
-    
+
     def match(self, node):
-        return node.prefix != u''
-    
+        # Newlines can be from a newline token or inside a node prefix
+        if node.type == token.NEWLINE or node.prefix.count(u'\n'):
+            return True
+
     def transform(self, node, results):
-        new_prefix = node.prefix.rstrip()
+        if node.prefix.count(u'#'):
+            prefix_split = node.prefix.split(u'\n')
+            # Rstrip every line except for the last one, since that is the whitespace before this line
+            new_prefix = u'\n'.join([line.rstrip(u' \t') for line in prefix_split[:-1]] + [prefix_split[-1]])
+        else:
+            new_prefix = node.prefix.lstrip(u' \t')
         if node.prefix != new_prefix:
             node.prefix = new_prefix
             node.changed()

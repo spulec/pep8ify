@@ -12,10 +12,10 @@ import foo.bar.yourclass
 class the_class():
     import os
     import sys
-    
+
     def test_func():
         import math
-    
+
     def other_func():
         import os
         import sys

@@ -16,6 +16,6 @@ foobar = foo(bar,baz)
 
 
 def tester_func():
-    if node_to_split.type in [symbols.or_test, symbols.and_test, 
+    if node_to_split.type in [symbols.or_test, symbols.and_test,
         symbols.not_test, symbols.test, symbols.arith_expr, symbols.comparison]:
         pass

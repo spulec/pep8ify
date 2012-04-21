@@ -2,7 +2,7 @@ import foo
 
 
 class testing():
-    
+
     def tester(self):
         return self.blah
 

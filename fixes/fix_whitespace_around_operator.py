@@ -39,24 +39,36 @@ class FixWhitespaceAroundOperator(BaseFix):
 
     def rstrip(self, node):
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u"":
-            next_sibling.prefix = next_sibling.prefix.lstrip(u' \t')
+        next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+        if next_sibling.prefix != next_sibling_new_prefix:
+            next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()
 
     def no_spaces(self, node):
         if node.prefix != u"":
             node.prefix = u""
             node.changed()
+
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u"":
-            next_sibling.prefix = next_sibling.prefix.lstrip(u' \t')
+        next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+        if next_sibling.prefix != next_sibling_new_prefix:
+            next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()
 
     def spaces(self, node):
-        if node.prefix != u" ":
-            node.prefix = u" %s" % node.prefix.lstrip(u' \t')
-            node.changed()
+        if not node.prefix.count(u'\n'):
+            # If there are newlines in the prefix, this is a continued line,
+            # don't strip anything
+            new_prefix = u" %s" % node.prefix.lstrip(u' \t')
+            if node.prefix != new_prefix:
+                node.prefix = new_prefix
+                node.changed()
+
         next_sibling = node.next_sibling
-        if next_sibling.prefix != u" ":
-            next_sibling.prefix = u" %s" % next_sibling.prefix.lstrip(u' \t')
+        if next_sibling.prefix.count(u'\n'):
+            next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+        else:
+            next_sibling_new_prefix = u" %s" % next_sibling.prefix.lstrip(u' \t')
+        if next_sibling.prefix != next_sibling_new_prefix:
+            next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()
