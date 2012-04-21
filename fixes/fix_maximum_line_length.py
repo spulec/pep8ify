@@ -9,6 +9,7 @@ from .utils import tuplize_comments, get_quotes
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
 CLOSING_TOKENS = [token.RPAR, token.RSQB, token.RBRACE]
+BAD_SPLITTLING_TOKENS = [token.COMMA]
 
 
 class FixMaximumLineLength(BaseFix):
@@ -114,7 +115,10 @@ class FixMaximumLineLength(BaseFix):
         open_count = 0
         for leaf in node_to_split.leaves():
             if leaf.column < MAX_CHARS:
-                first_leaf_gt_limit = leaf
+                # There are certain token we don't want to split on.
+                # We'll just split on the previous token if necessary.
+                if leaf.type not in BAD_SPLITTLING_TOKENS:
+                    first_leaf_gt_limit = leaf
             else:
                 break
             if leaf.type in OPENING_TOKENS:
