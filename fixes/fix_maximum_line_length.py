@@ -9,7 +9,8 @@ from .utils import tuplize_comments, get_quotes
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
 CLOSING_TOKENS = [token.RPAR, token.RSQB, token.RBRACE]
-BAD_SPLITTLING_TOKENS = [token.COMMA]
+BAD_SPLITTLING_TOKENS = [token.COMMA, token.EQUAL]
+BAD_SPLITTLING_PREV_TOKENS = [token.EQUAL]
 
 
 class FixMaximumLineLength(BaseFix):
@@ -113,11 +114,14 @@ class FixMaximumLineLength(BaseFix):
         first_leaf_gt_limit = None
         # We want to keep track of if we are breaking inside a parenth
         open_count = 0
+        prev_leaf = None
         for leaf in node_to_split.leaves():
             if leaf.column < MAX_CHARS:
-                # There are certain token we don't want to split on.
+                # There are certain tokens we don't want to split on and there
+                # are certain tokens we don't want to split directly after
                 # We'll just split on the previous token if necessary.
-                if leaf.type not in BAD_SPLITTLING_TOKENS:
+                if (leaf.type not in BAD_SPLITTLING_TOKENS and
+                    (not prev_leaf or prev_leaf.type not in BAD_SPLITTLING_PREV_TOKENS)):
                     first_leaf_gt_limit = leaf
             else:
                 break
@@ -125,6 +129,7 @@ class FixMaximumLineLength(BaseFix):
                 open_count += 1
             if leaf.type in CLOSING_TOKENS:
                 open_count -= 1
+            prev_leaf = leaf
 
         if first_leaf_gt_limit.was_changed:
             # It's possible this node was already fixed by another pass-through

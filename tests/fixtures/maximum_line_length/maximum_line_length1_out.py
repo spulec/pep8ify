@@ -76,12 +76,12 @@ def tester5():
         print "good testing"
 
 
-def tester_func(param1=u'param_value1', param2=u'param_value2', param3=
-    u'param_value3', param4=u'param_value4'):
+def tester_func(param1=u'param_value1', param2=u'param_value2',
+    param3=u'param_value3', param4=u'param_value4'):
     print "good testing"
 
-tester_func(param1=u'param_value1', param2=u'param_value2', param3=
-    u'param_value3', param4=u'param_value4')
+tester_func(param1=u'param_value1', param2=u'param_value2',
+    param3=u'param_value3', param4=u'param_value4')
 
 
 def testing_func():
