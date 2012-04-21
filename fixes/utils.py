@@ -47,7 +47,8 @@ def prefix_indent_count(node):
 
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
-    # Given u'\n\n\n    # test comment\n    \n', returns ([u'\n\n\n'], [u'    # test comment\n'], [u'    \n'])
+    # Given u'\n\n\n    # test comment\n    \n'
+    # returns ([u'\n\n\n'], [u'    # test comment\n'], [u'    \n'])
 
     if not prefix:
         return (u'', u'', u'')

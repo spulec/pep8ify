@@ -49,7 +49,8 @@ def test_all_fixtures():
             # else:
             #fixer_to_run = root.replace(FIXTURE_PATH, "")
             
-            # This partial business is a hack to make the description attribute actually work.
+            # This partial business is a hack to make the description
+            # attribute actually work.
             # See http://code.google.com/p/python-nose/issues/detail?id=244#c1
             func = partial(check_fixture, in_file, out_file, fixer_to_run)
             func.description = fixer_to_run or "All fixes"
