@@ -14,6 +14,8 @@ if ("foobar" == "foobar" or "foobar" == "foobar" or "foobar" == "foobar" or
 new_prefix = ('\n'.join([u"%s%s" % ("new_comment_indent", line.lstrip()) if
     line else u'' for line in "new_prefix".split('\n')]).rstrip(u' ') +
     "another long string")
+from .utils import (get_whitespace_before_definition, has_parent,
+    tuplize_comments)
 
 
 class tester:

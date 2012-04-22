@@ -206,19 +206,24 @@ class FixMaximumLineLength(BaseFix):
 
     def parenthesize_import_stmt(self, node_to_split):
         # from x import foo, bar
-        import_as_names = node_to_split.children[-1]
-        if import_as_names.children[0] != LParen():
+        imports_index = 0
+        # Get the index of the first imported item
+        for index, child in enumerate(node_to_split.children):
+            if child.value == "import":
+                imports_index = index + 1
+                break
+        first_import_child = node_to_split.children[imports_index]
+        if first_import_child != LParen():
             # strip the current 1st child, since we will be prepending an LParen
-            first_import_child = import_as_names.children[0]
             if first_import_child.prefix != first_import_child.prefix.strip():
                 first_import_child.prefix = first_import_child.prefix.strip()
                 first_import_child.changed()
             # We set a space prefix since this is after the '='
             left_paren = LParen()
             left_paren.prefix = u" "
-            import_as_names.insert_child(0, left_paren)
-            import_as_names.append_child(RParen())
-            import_as_names.changed()
+            node_to_split.insert_child(imports_index, left_paren)
+            node_to_split.append_child(RParen())
+            node_to_split.changed()
 
     def parenthesize_expr_stmt(self, node_to_split):
         # x = "%s%s" % ("foo", "bar")
