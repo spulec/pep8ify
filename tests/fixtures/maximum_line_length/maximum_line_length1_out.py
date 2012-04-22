@@ -4,8 +4,14 @@ testing = tuplize_comments(
     "this is a longer string that breaks the 79 char limit")
 # This is an inline comment that goes over 79 chars
 
-LSTRIP_TOKENS = ["foobar1", "foobar1", "foobar1", "foobar1", "foobar1",
-    "foo", "foobar1", "foobar1"]
+LSTRIP_TOKENS = ["foobar1", "foobar1", "foobar1", "foobar1", "foobar1", "foo",
+    "foobar1", "foobar1"]
+
+if ("foobar" == "foobar" or "foobar" == "foobar" or "foobar" == "foobar" or
+    "foobar2" == "foobar"
+    or "foobar" == "foobar" or "foobar" == "foobar" or "foobar" == "foobar" or
+    "foobar3" == "foobar"):
+    pass
 
 
 class tester:
@@ -88,5 +94,5 @@ def testing_func():
     if (node.type == symbols.funcdef and node.parent.type != symbols.decorated
         or node.type == symbols.classdef or node.type == symbols.decorated or
         node.type == symbols.simple_stmt):
-        return(node.type, node.type2, node.type3, node.type4, node.type5, node
-            .type6)
+        return(node.type, node.type2, node.type3, node.type4, node.type5, node.
+            type6)

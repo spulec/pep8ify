@@ -1,7 +1,8 @@
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import Leaf, LParen, RParen, find_indentation
+from lib2to3.fixer_util import LParen, RParen, find_indentation
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
+from lib2to3.pytree import Leaf
 from textwrap import TextWrapper
 
 from .utils import tuplize_comments, get_quotes
@@ -30,7 +31,7 @@ class FixMaximumLineLength(BaseFix):
             # Sometimes the newline is wrapped into the next node, so we need to check the colons also.
             if node.column > MAX_CHARS:
                 return True
-        elif any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
+        if any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
             # There is a line in the prefix greater than MAX_CHARS
             return True
         return False
@@ -114,9 +115,21 @@ class FixMaximumLineLength(BaseFix):
         first_leaf_gt_limit = None
         # We want to keep track of if we are breaking inside a parenth
         open_count = 0
+        need_parens = False
         prev_leaf = None
+        overlapping_leaves = []  # Leaves that need newliens before them
+        within_limit = True
         for leaf in node_to_split.leaves():
-            if leaf.column < MAX_CHARS:
+            if leaf.column <= MAX_CHARS:
+
+                if (prev_leaf and prev_leaf.column > leaf.column 
+                    and prev_leaf.column + len(prev_leaf.value) > MAX_CHARS
+                    and first_leaf_gt_limit not in overlapping_leaves):
+                    # If the current column is less than the prev, there was a newline
+                    overlapping_leaves.append(first_leaf_gt_limit)
+                    need_parens = need_parens or open_count <= 0
+
+                within_limit = True
                 # There are certain tokens we don't want to split on and there
                 # are certain tokens we don't want to split directly after
                 # We'll just split on the previous token if necessary.
@@ -124,32 +137,41 @@ class FixMaximumLineLength(BaseFix):
                     (not prev_leaf or prev_leaf.type not in BAD_SPLITTLING_PREV_TOKENS)):
                     first_leaf_gt_limit = leaf
             else:
-                break
+                if within_limit:
+                    overlapping_leaves.append(first_leaf_gt_limit)
+                    need_parens = need_parens or open_count <= 0
+                within_limit = False
             if leaf.type in OPENING_TOKENS:
                 open_count += 1
             if leaf.type in CLOSING_TOKENS:
                 open_count -= 1
             prev_leaf = leaf
 
-        if first_leaf_gt_limit.was_changed:
-            # It's possible this node was already fixed by another pass-through
+        if not overlapping_leaves:
+            # In case it was just one leaf
+            overlapping_leaves.append(first_leaf_gt_limit)
+            need_parens = need_parens or open_count <= 0
+
+        unchanged_overlapping_leaves = [leaf for leaf in overlapping_leaves if not leaf.was_changed]
+        if not unchanged_overlapping_leaves:
+            # It's possible all nodes were already fixed by another pass-through
             return
 
-        # Since this node will be at the beginning of the line, strip the prefix
-        first_leaf_gt_limit.prefix = first_leaf_gt_limit.prefix.strip()
+        for leaf_gt_prefix in unchanged_overlapping_leaves:
+            # Since this node will be at the beginning of the line, strip the prefix
+            leaf_gt_prefix.prefix = leaf_gt_prefix.prefix.strip()
 
-        # We need to note if we are breaking on a func call, because that will mandate parens later
-        breaking_on_func_call = False
-        if first_leaf_gt_limit.prev_sibling == Leaf(token.DOT, u'.'):
-            breaking_on_func_call = True
+            # We need to note if we are breaking on a func call, because that will mandate parens later
+            breaking_on_func_call = False
+            if leaf_gt_prefix.prev_sibling == Leaf(token.DOT, u'.'):
+                breaking_on_func_call = True
 
-        parent_depth = find_indentation(node_to_split)
-        new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
+            parent_depth = find_indentation(node_to_split)
+            new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
 
-        first_leaf_gt_limit.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), first_leaf_gt_limit])
-        first_leaf_gt_limit.changed()
+            leaf_gt_prefix.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), leaf_gt_prefix])
 
-        if open_count <= 0:
+        if need_parens:
             # Parenthesize the parent if we're not inside parenths, braces, brackets, since we inserted newlines between leaves
             self.parenthesize_parent(node_to_split, breaking_on_func_call)
 

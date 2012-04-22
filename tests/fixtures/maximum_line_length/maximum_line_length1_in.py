@@ -3,6 +3,10 @@ testing = tuplize_comments("this is a longer string that breaks the 79 char limi
 
 LSTRIP_TOKENS = ["foobar1", "foobar1", "foobar1", "foobar1", "foobar1", "foo", "foobar1", "foobar1"]
 
+if ("foobar" == "foobar" or "foobar" == "foobar" or "foobar" == "foobar" or "foobar2" == "foobar"
+    or "foobar" == "foobar" or "foobar" == "foobar" or "foobar" == "foobar" or "foobar3" == "foobar"):
+    pass
+
 
 class tester:
     u"""this is testing the maximum length of a docstring and it is very long to ensure that the test will work well"""

@@ -1,7 +1,7 @@
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import Leaf
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
+from lib2to3.pytree import Leaf
 
 from .utils import OPERATORS, UNARY_OPERATORS
 

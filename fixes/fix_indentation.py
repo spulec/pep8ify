@@ -1,5 +1,5 @@
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import Leaf
+from lib2to3.pytree import Leaf
 from lib2to3.pgen2 import token
 
 from .utils import prefix_indent_count
