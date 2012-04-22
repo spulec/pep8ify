@@ -5,6 +5,9 @@ BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%', '^', '&', '|', '=', '/', '//', '<', '>', '<<'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
+BAD_SPLITTLING_TOKENS = [token.COMMA, token.EQUAL]
+BAD_SPLITTLING_PREV_TOKENS = [token.EQUAL]
+MAX_CHARS = 79
 
 
 def get_leaves_after_last_newline(node):
@@ -91,3 +94,65 @@ def get_quotes(text):
         # Single-quoted string
         quote_start = text[:leading_chars + 1]
     return (quote_start, quote_start[leading_chars:])
+
+
+# Like TextWrapper, but for leaves
+def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'',
+                dont_split_on=BAD_SPLITTLING_TOKENS, dont_split_after=BAD_SPLITTLING_PREV_TOKENS):
+    lines = []
+
+    # Fake the prefix of the first node to be the indent that it should be.
+    # We'll set it back afterward.
+    first_node_prefix = nodes[0].prefix
+    nodes[0].prefix = u' ' * (nodes[0].column - 1)
+
+    nodes.reverse()
+    while nodes:
+
+        curr_line = []
+        curr_len = 0
+
+        # Figure out which static string will prefix this line.
+        if lines:
+            indent = subsequent_indent
+        else:
+            indent = initial_indent
+
+        # Maximum width for this line.
+        curr_width = width - len(indent)
+
+        while nodes:
+            last_node = nodes[-1]
+            node_length = len(last_node.prefix) + len(last_node.value)
+
+            # Can at least squeeze this chunk onto the current line.
+            if curr_len + node_length <= curr_width:
+                curr_line.append(nodes.pop())
+                curr_len += node_length
+
+            # Nope, this line is full.
+            else:
+                if nodes[-1].type in dont_split_on:
+                    # We don't want the next line to start on one of these tokens
+                    node_to_move = curr_line.pop()
+                    nodes.append(node_to_move)
+                if curr_line[-1].type in dont_split_after:
+                    # We don't want this line to end on one of these tokens
+                    node_to_move = curr_line.pop()
+                    nodes.append(node_to_move)
+                    node_to_move = curr_line.pop()
+                    nodes.append(node_to_move)
+                break
+
+        # The current line is full, and the next chunk is too big to
+        # fit on *any* line (not just this one).
+        # TODO implement this at some point
+        # if nodes and len(nodes[-1]) > curr_width:
+        #     self._handle_long_word(nodes, curr_line, curr_len, width)
+
+        if curr_line:
+            curr_line[0].prefix = "%s%s" % (indent, curr_line[0].prefix)
+            lines.append(curr_line)
+    
+    lines[0][0].prefix = first_node_prefix
+    return lines

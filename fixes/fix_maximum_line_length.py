@@ -2,16 +2,14 @@ from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import LParen, RParen, find_indentation
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
-from lib2to3.pytree import Leaf
+from lib2to3.pytree import Leaf, Node
 from textwrap import TextWrapper
 
-from .utils import tuplize_comments, get_quotes
+from .utils import tuplize_comments, get_quotes, wrap_leaves
 
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
 CLOSING_TOKENS = [token.RPAR, token.RSQB, token.RBRACE]
-BAD_SPLITTLING_TOKENS = [token.COMMA, token.EQUAL]
-BAD_SPLITTLING_PREV_TOKENS = [token.EQUAL]
 
 
 class FixMaximumLineLength(BaseFix):
@@ -27,8 +25,10 @@ class FixMaximumLineLength(BaseFix):
     '''
     
     def match(self, node):
+        #if node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]:
         if node.type in [token.NEWLINE, token.COLON]:
             # Sometimes the newline is wrapped into the next node, so we need to check the colons also.
+            #if node.next_sibling.column > MAX_CHARS:
             if node.column > MAX_CHARS:
                 return True
         if any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
@@ -37,10 +37,17 @@ class FixMaximumLineLength(BaseFix):
         return False
     
     def transform(self, node, results):
+        # next_sibling = node.next_sibling
+        # if next_sibling and (any(len(line) > MAX_CHARS for line in next_sibling.prefix.split(u'\n')) or
+        #     (next_sibling.prefix.count(u"#") and next_sibling.column + len(next_sibling.prefix) > MAX_CHARS)):
+        #     # Need to fix the prefix
+        #     self.fix_prefix(next_sibling)
         if (any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')) or
-            (node.prefix.count(u"#") and node.column + len(node.prefix) > MAX_CHARS)):
+            node.prefix.count(u"#") and node.column + len(node.prefix) > MAX_CHARS):
             # Need to fix the prefix
             self.fix_prefix(node)
+        # if (node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]
+        #     and node.next_sibling.column - len(node.next_sibling.prefix) > MAX_CHARS):
         if node.type in [token.NEWLINE, token.COLON] and node.column - len(node.prefix) > MAX_CHARS:
             node_to_split = node.prev_sibling
             if not node_to_split:
@@ -111,77 +118,57 @@ class FixMaximumLineLength(BaseFix):
         node_to_split.changed()
 
     def fix_leaves(self, node_to_split):
-        # The first leaf after the limit
-        first_leaf_gt_limit = None
+        parent_depth = find_indentation(node_to_split)
+        new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
+        
+        child_leaves = []
+        for index, leaf in enumerate(node_to_split.leaves()):
+            # We want to strip all newlines so we can properly insert newlines where they should be
+            if leaf.type != token.NEWLINE:
+                if leaf.prefix.count(u'\n') and index:
+                    # If the line contains a newline, we need to strip all whitespace since there were leading indent spaces
+                    leaf.prefix = u" "
+                child_leaves.append(leaf)
+        
+        # Like TextWrapper, but for nodes.
+        # We split on MAX_CHARS - 1 since we may need to insert a leading parenth.
+        # It's not great, but it would be hard to do properly.
+        split_leaves = wrap_leaves(child_leaves, width=MAX_CHARS - 1, subsequent_indent=new_indent)
+        new_node = Node(node_to_split.type, [])
+
         # We want to keep track of if we are breaking inside a parenth
         open_count = 0
         need_parens = False
-        prev_leaf = None
-        overlapping_leaves = []  # Leaves that need newliens before them
-        within_limit = True
-        for leaf in node_to_split.leaves():
-            if leaf.column <= MAX_CHARS:
+        for line_index, curr_line_nodes in enumerate(split_leaves):
+            for node_index, curr_line_node in enumerate(curr_line_nodes):
+                if line_index and not node_index:
+                    # If first node in non-first line, reset prefix since there may have been spaces previously
+                    curr_line_node.prefix = new_indent
+                new_node.append_child(curr_line_node)
+                if curr_line_node.type in OPENING_TOKENS:
+                    open_count += 1
+                if curr_line_node.type in CLOSING_TOKENS:
+                    open_count -= 1
 
-                if (prev_leaf and prev_leaf.column > leaf.column 
-                    and prev_leaf.column + len(prev_leaf.value) > MAX_CHARS
-                    and first_leaf_gt_limit not in overlapping_leaves):
-                    # If the current column is less than the prev, there was a newline
-                    overlapping_leaves.append(first_leaf_gt_limit)
-                    need_parens = need_parens or open_count <= 0
+            if line_index != len(split_leaves) - 1:
+                # Don't add newline at the end since it it part of the next sibling
+                new_node.append_child(Leaf(token.NEWLINE, u'\n'))
 
-                within_limit = True
-                # There are certain tokens we don't want to split on and there
-                # are certain tokens we don't want to split directly after
-                # We'll just split on the previous token if necessary.
-                if (leaf.type not in BAD_SPLITTLING_TOKENS and
-                    (not prev_leaf or prev_leaf.type not in BAD_SPLITTLING_PREV_TOKENS)):
-                    first_leaf_gt_limit = leaf
-            else:
-                if within_limit:
-                    overlapping_leaves.append(first_leaf_gt_limit)
-                    need_parens = need_parens or open_count <= 0
-                within_limit = False
-            if leaf.type in OPENING_TOKENS:
-                open_count += 1
-            if leaf.type in CLOSING_TOKENS:
-                open_count -= 1
-            prev_leaf = leaf
-
-        if not overlapping_leaves:
-            # In case it was just one leaf
-            overlapping_leaves.append(first_leaf_gt_limit)
-            need_parens = need_parens or open_count <= 0
-
-        unchanged_overlapping_leaves = [leaf for leaf in overlapping_leaves if not leaf.was_changed]
-        if not unchanged_overlapping_leaves:
-            # It's possible all nodes were already fixed by another pass-through
-            return
-
-        for leaf_gt_prefix in unchanged_overlapping_leaves:
-            # Since this node will be at the beginning of the line, strip the prefix
-            leaf_gt_prefix.prefix = leaf_gt_prefix.prefix.strip()
-
-            # We need to note if we are breaking on a func call, because that will mandate parens later
-            breaking_on_func_call = False
-            if leaf_gt_prefix.prev_sibling == Leaf(token.DOT, u'.'):
-                breaking_on_func_call = True
-
-            parent_depth = find_indentation(node_to_split)
-            new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
-
-            leaf_gt_prefix.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), leaf_gt_prefix])
-
+                # Checks if we ended a line without being surrounded by parens
+                if open_count <= 0:
+                    need_parens = True
         if need_parens:
             # Parenthesize the parent if we're not inside parenths, braces, brackets, since we inserted newlines between leaves
-            self.parenthesize_parent(node_to_split, breaking_on_func_call)
+            self.parenthesize_parent(new_node)
+        node_to_split.replace(new_node)
 
-    def parenthesize_parent(self, node_to_split, breaking_on_func_call):
+    def parenthesize_parent(self, node_to_split):
         if node_to_split.type in [symbols.print_stmt, symbols.return_stmt]:
             self.parenthesize_print_or_return_stmt(node_to_split)
         elif node_to_split.type == symbols.expr_stmt:
             self.parenthesize_expr_stmt(node_to_split)
         elif node_to_split.type in [symbols.power, symbols.atom]:
-            self.parenthesize_call_stmt(node_to_split, breaking_on_func_call)
+            self.parenthesize_call_stmt(node_to_split)
         elif node_to_split.type == symbols.import_from:
             self.parenthesize_import_stmt(node_to_split)
         elif node_to_split.type in [symbols.or_test, symbols.and_test, 
@@ -236,27 +223,23 @@ class FixMaximumLineLength(BaseFix):
     def parenthesize_expr_stmt(self, node_to_split):
         # x = "%s%s" % ("foo", "bar")
         value_node = node_to_split.children[2]
-        first_child = value_node.children[0]
-        if first_child != LParen():
+        if value_node != LParen():
             # strip the current 1st child and add a space, since we will be prepending an LParen
-            if first_child.prefix != first_child.prefix.strip():
-                first_child.prefix = first_child.prefix.strip()
-                first_child.changed()
+            if value_node.prefix != value_node.prefix.strip():
+                value_node.prefix = value_node.prefix.strip()
+                value_node.changed()
             
             # We set a space prefix since this is after the '='
             left_paren = LParen()
             left_paren.prefix = u" "
-            value_node.insert_child(0, left_paren)
-            value_node.append_child(RParen())
-            value_node.changed()
+            node_to_split.insert_child(2, left_paren)
+            node_to_split.append_child(RParen())
+            node_to_split.changed()
 
-    def parenthesize_call_stmt(self, node_to_split, breaking_on_func_call):
+    def parenthesize_call_stmt(self, node_to_split):
         # a.b().c()
         first_child = node_to_split.children[0]
-        if node_to_split.type == symbols.power and not breaking_on_func_call:
-            # We don't need to add parens if we are calling a func and not splitting on a func call
-            pass
-        elif first_child != LParen():
+        if first_child != LParen():
             # Since this can be at the beginning of a line, we can't just
             # strip the prefix, we need to keep leading whitespace
             first_child.prefix = u"%s(" % first_child.prefix
