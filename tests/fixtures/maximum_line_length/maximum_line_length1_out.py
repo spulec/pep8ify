@@ -32,7 +32,11 @@ class tester:
     def tester2():
         u'''This is a long docstring that is inside of a function which is
             inside of a class'''
-        return
+        comment_start = 2
+        comments = u''
+        prefix = u''
+        return prefix[:comments_start].strip(u' '), comments, prefix[
+            comments_start + len(comments):]
 
 
 # This is a tester comment that ensures we are able to fix top-level comments

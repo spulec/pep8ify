@@ -132,11 +132,11 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
 
             # Nope, this line is full.
             else:
-                if nodes[-1].type in dont_split_on:
+                if nodes and nodes[-1].type in dont_split_on:
                     # We don't want the next line to start on one of these tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)
-                if curr_line[-1].type in dont_split_after:
+                if curr_line and curr_line[-1].type in dont_split_after:
                     # We don't want this line to end on one of these tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)
@@ -147,7 +147,7 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
         # The current line is full, and the next chunk is too big to
         # fit on *any* line (not just this one).
         # TODO implement this at some point
-        # if nodes and len(nodes[-1]) > curr_width:
+        # if nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
         #     self._handle_long_word(nodes, curr_line, curr_len, width)
 
         if curr_line:

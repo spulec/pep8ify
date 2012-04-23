@@ -10,6 +10,9 @@ from .utils import tuplize_comments, get_quotes, wrap_leaves
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
 CLOSING_TOKENS = [token.RPAR, token.RSQB, token.RBRACE]
+SYMBOLS_WITH_NEWLINES_IN_COLONS = [symbols.funcdef, symbols.classdef,
+    symbols.if_stmt, symbols.for_stmt, symbols.while_stmt, symbols.lambdef,
+    symbols.try_stmt, symbols.with_stmt]
 
 
 class FixMaximumLineLength(BaseFix):
@@ -26,7 +29,8 @@ class FixMaximumLineLength(BaseFix):
     
     def match(self, node):
         #if node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]:
-        if node.type in [token.NEWLINE, token.COLON]:
+        if (node.type in [token.NEWLINE] or
+            node.type == token.COLON and node.parent.type in SYMBOLS_WITH_NEWLINES_IN_COLONS):
             # Sometimes the newline is wrapped into the next node, so we need to check the colons also.
             #if node.next_sibling.column > MAX_CHARS:
             if node.column > MAX_CHARS:
