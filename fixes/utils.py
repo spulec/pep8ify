@@ -123,6 +123,11 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
 
         while nodes:
             last_node = nodes[-1]
+            
+            if lines and not curr_line:
+                # Strip prefixes for subsequent lines
+                last_node.prefix = u''
+
             node_length = len(last_node.prefix) + len(last_node.value)
 
             # Can at least squeeze this chunk onto the current line.

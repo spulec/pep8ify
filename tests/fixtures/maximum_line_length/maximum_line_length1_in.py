@@ -21,6 +21,10 @@ class tester:
     # this is another testerig comment that makes sure that we are able to test the fixer properly.
     def tester2():
         u'''This is a long docstring that is inside of a function which is inside of a class'''
+        new_comment_indent = u''
+        new_prefix = u''
+        # Split the lines of comment and prepend them with the new indent value
+        new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).rstrip(u' ')
         comment_start = 2
         comments = u''
         prefix = u''
