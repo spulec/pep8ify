@@ -1,12 +1,11 @@
 from lib2to3.pgen2 import token
+from lib2to3.pygram import python_symbols as symbols
 
 BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
     '%', '^', '&', '|', '=', '/', '//', '<', '>', '<<'])
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
-BAD_SPLITTLING_TOKENS = [token.COMMA, token.EQUAL]
-BAD_SPLITTLING_PREV_TOKENS = [token.EQUAL]
 MAX_CHARS = 79
 
 
@@ -97,8 +96,7 @@ def get_quotes(text):
 
 
 # Like TextWrapper, but for leaves
-def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'',
-                dont_split_on=BAD_SPLITTLING_TOKENS, dont_split_after=BAD_SPLITTLING_PREV_TOKENS):
+def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u''):
     lines = []
 
     # Fake the prefix of the first node to be the indent that it should be.
@@ -137,11 +135,12 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
 
             # Nope, this line is full.
             else:
-                if nodes and nodes[-1].type in dont_split_on:
+                # only disallow breaking on/after equals if parent of this type
+                if nodes and nodes[-1].type in [token.COMMA, token.EQUAL]:
                     # We don't want the next line to start on one of these tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)
-                if curr_line and curr_line[-1].type in dont_split_after:
+                if curr_line and curr_line[-1].type == token.EQUAL and curr_line[-1].parent.type != symbols.expr_stmt:
                     # We don't want this line to end on one of these tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)

@@ -16,6 +16,8 @@ new_prefix = ('\n'.join([u"%s%s" % ("new_comment_indent", line.lstrip()) if
     "another long string")
 from .utils import (get_whitespace_before_definition, has_parent,
     tuplize_comments)
+before_comments, comments, after_comments_and_this_string_goes_on = (
+    tuplize_comments(u"asjdfsjf js ffsadasdfsf"))
 
 
 class tester:

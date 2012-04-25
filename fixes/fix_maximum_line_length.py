@@ -124,7 +124,7 @@ class FixMaximumLineLength(BaseFix):
     def fix_leaves(self, node_to_split):
         parent_depth = find_indentation(node_to_split)
         new_indent = u"%s%s" % (u' ' * 4,  parent_depth)  # For now, just indent additional lines by 4 more spaces
-        
+
         child_leaves = []
         for index, leaf in enumerate(node_to_split.leaves()):
             # We want to strip all newlines so we can properly insert newlines where they should be
@@ -133,7 +133,7 @@ class FixMaximumLineLength(BaseFix):
                     # If the line contains a newline, we need to strip all whitespace since there were leading indent spaces
                     leaf.prefix = u" "
                 child_leaves.append(leaf)
-        
+
         # Like TextWrapper, but for nodes.
         # We split on MAX_CHARS - 1 since we may need to insert a leading parenth.
         # It's not great, but it would be hard to do properly.
@@ -163,18 +163,22 @@ class FixMaximumLineLength(BaseFix):
                     need_parens = True
         if need_parens:
             # Parenthesize the parent if we're not inside parenths, braces, brackets, since we inserted newlines between leaves
-            self.parenthesize_parent(new_node)
+            parenth_before_equals = Leaf(token.EQUAL, u"=") in split_leaves[0]
+            self.parenthesize_parent(new_node, parenth_before_equals)
         node_to_split.replace(new_node)
 
-    def parenthesize_parent(self, node_to_split):
+    def parenthesize_parent(self, node_to_split, parenth_before_equals):
         if node_to_split.type in [symbols.print_stmt, symbols.return_stmt]:
             self.parenthesize_print_or_return_stmt(node_to_split)
         elif node_to_split.type == symbols.expr_stmt:
-            self.parenthesize_expr_stmt(node_to_split)
+            if parenth_before_equals:
+                self.parenthesize_after_arg(node_to_split, u"=")
+            else:
+                self.parenthesize_expr_stmt(node_to_split)
+        elif node_to_split.type == symbols.import_from:
+            self.parenthesize_after_arg(node_to_split, u"import")
         elif node_to_split.type in [symbols.power, symbols.atom]:
             self.parenthesize_call_stmt(node_to_split)
-        elif node_to_split.type == symbols.import_from:
-            self.parenthesize_import_stmt(node_to_split)
         elif node_to_split.type in [symbols.or_test, symbols.and_test, 
             symbols.not_test, symbols.test, symbols.arith_expr, symbols.comparison]:
             self.parenthesize_test(node_to_split)
@@ -208,40 +212,30 @@ class FixMaximumLineLength(BaseFix):
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
-    def parenthesize_import_stmt(self, node_to_split):
-        # from x import foo, bar
-        imports_index = 0
-        # Get the index of the first imported item
+    def parenthesize_after_arg(self, node_to_split, value):
+        # parenthesize the leaves after the first node with the value
+        value_index = 0
         for index, child in enumerate(node_to_split.children):
-            if child.value == "import":
-                imports_index = index + 1
+            if child.value == value:
+                value_index = index + 1
                 break
-        first_import_child = node_to_split.children[imports_index]
-        if first_import_child != LParen():
+        value_child = node_to_split.children[value_index]
+        if value_child != LParen():
             # strip the current 1st child, since we will be prepending an LParen
-            if first_import_child.prefix != first_import_child.prefix.strip():
-                first_import_child.prefix = first_import_child.prefix.strip()
-                first_import_child.changed()
+            if value_child.prefix != value_child.prefix.strip():
+                value_child.prefix = value_child.prefix.strip()
+                value_child.changed()
             # We set a space prefix since this is after the '='
             left_paren = LParen()
             left_paren.prefix = u" "
-            node_to_split.insert_child(imports_index, left_paren)
+            node_to_split.insert_child(value_index, left_paren)
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
     def parenthesize_expr_stmt(self, node_to_split):
-        # x = "%s%s" % ("foo", "bar")
-        value_node = node_to_split.children[2]
-        if value_node != LParen():
-            # strip the current 1st child and add a space, since we will be prepending an LParen
-            if value_node.prefix != value_node.prefix.strip():
-                value_node.prefix = value_node.prefix.strip()
-                value_node.changed()
-            
-            # We set a space prefix since this is after the '='
-            left_paren = LParen()
-            left_paren.prefix = u" "
-            node_to_split.insert_child(2, left_paren)
+        # x = "foo" + bar
+        if node_to_split.children[0] != LParen():
+            node_to_split.insert_child(0, LParen())
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
