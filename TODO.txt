@@ -1,4 +1,5 @@
 -Test it against own codebase and pep8 code after
+-Switch to StringIO from file-based testing
 -Get README/Documentation setup
 -Make public
 -TravisCI
