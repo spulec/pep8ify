@@ -7,6 +7,7 @@
 Issues
 fixes/fix_blank_lines.py:42:56: E251 no spaces around keyword / parameter equals
 fixes/fix_indentation.py:65:80: E501 line too long (80 characters)
+fixes/fix_trailing_whitespace.py:14:1: W293 blank line contains whitespace
 
 -allow to break on string during maximum_line_length
 -pep8 complains about spaces on blank lines in docstrings.
