@@ -27,9 +27,10 @@ class Foo:
         pass
 
 
-
-
-
+    
+    
+    def bar2():
+        pass
 
 def testing345():
     pass

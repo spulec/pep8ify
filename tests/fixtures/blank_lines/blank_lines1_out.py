@@ -25,6 +25,9 @@ class Foo:
     def bar():
         pass
 
+    def bar2():
+        pass
+
 
 def testing345():
     pass

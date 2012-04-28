@@ -26,7 +26,7 @@ class FixMaximumLineLength(BaseFix):
     For flowing long blocks of text (docstrings or comments), limiting the
     length to 72 characters is recommended.
     '''
-    
+
     def match(self, node):
         #if node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]:
         if (node.type in [token.NEWLINE] or
