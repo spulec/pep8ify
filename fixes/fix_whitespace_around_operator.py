@@ -12,7 +12,7 @@ KEYWORKD_ARG_SYMBOLS = [symbols.argument, symbols.arglist, symbols.typedargslist
 class FixWhitespaceAroundOperator(BaseFix):
     u'''
     Avoid extraneous whitespace in the following situations:
-    
+
     - More than one space around an assignment (or other) operator to
       align it with another.
     '''
