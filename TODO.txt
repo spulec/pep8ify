@@ -6,7 +6,5 @@
 
 
 Issues
-fixes/fix_blank_lines.py:42:56: E251 no spaces around keyword / parameter equals
-
 -allow to break on string during maximum_line_length
 -pep8 complains about spaces on blank lines in docstrings.
