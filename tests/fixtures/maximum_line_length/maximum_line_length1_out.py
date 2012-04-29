@@ -41,6 +41,10 @@ class tester:
             new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.lstrip
                 ()) if line else u'' for line in new_prefix.split('\n')]).
                 rstrip(u' '))
+        # Allow unary operators: -123, -x, +1.
+        if (node.value in UNARY_OPERATORS and node.parent.type == symbols.
+            factor):
+            pass
         comment_start = 2
         comments = u''
         prefix = u''

@@ -28,12 +28,12 @@ class FixMaximumLineLength(BaseFix):
     '''
 
     def match(self, node):
-        #if node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]:
         if (node.type in [token.NEWLINE] or
             node.type == token.COLON and node.parent.type in SYMBOLS_WITH_NEWLINES_IN_COLONS):
             # Sometimes the newline is wrapped into the next node, so we need to check the colons also.
-            #if node.next_sibling.column > MAX_CHARS:
-            if node.column > MAX_CHARS:
+            if (node.column > MAX_CHARS or
+                node.type == token.COLON and node.column + len(node.value) > MAX_CHARS):
+                # For colon nodes, we need to add the len of the colon also
                 return True
         if any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
             # There is a line in the prefix greater than MAX_CHARS
@@ -41,18 +41,15 @@ class FixMaximumLineLength(BaseFix):
         return False
     
     def transform(self, node, results):
-        # next_sibling = node.next_sibling
-        # if next_sibling and (any(len(line) > MAX_CHARS for line in next_sibling.prefix.split(u'\n')) or
-        #     (next_sibling.prefix.count(u"#") and next_sibling.column + len(next_sibling.prefix) > MAX_CHARS)):
-        #     # Need to fix the prefix
-        #     self.fix_prefix(next_sibling)
         if (any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')) or
             node.prefix.count(u"#") and node.column + len(node.prefix) > MAX_CHARS):
             # Need to fix the prefix
             self.fix_prefix(node)
-        # if (node.next_sibling and node.next_sibling.type in [token.NEWLINE, token.COLON]
-        #     and node.next_sibling.column - len(node.next_sibling.prefix) > MAX_CHARS):
-        if node.type in [token.NEWLINE, token.COLON] and node.column - len(node.prefix) > MAX_CHARS:
+        if node.type == token.NEWLINE:
+            node_length = len(node.prefix)
+        elif node.type == token.COLON:
+            node_length = len(node.prefix) - len(node.value)
+        if node.type in [token.NEWLINE, token.COLON] and node.column - node_length > MAX_CHARS:
             node_to_split = node.prev_sibling
             if not node_to_split:
                 return
@@ -181,7 +178,7 @@ class FixMaximumLineLength(BaseFix):
             self.parenthesize_after_arg(node_to_split, u"import")
         elif node_to_split.type in [symbols.power, symbols.atom]:
             self.parenthesize_call_stmt(node_to_split)
-        elif node_to_split.type in [symbols.or_test, symbols.and_test, 
+        elif node_to_split.type in [symbols.or_test, symbols.and_test,
             symbols.not_test, symbols.test, symbols.arith_expr, symbols.comparison]:
             self.parenthesize_test(node_to_split)
         elif node_to_split.type == symbols.parameters:
@@ -196,7 +193,9 @@ class FixMaximumLineLength(BaseFix):
             if first_child.prefix != first_child.prefix.strip():
                 first_child.prefix = first_child.prefix.strip()
                 first_child.changed()
-            node_to_split.insert_child(0, LParen())
+            left_paren = LParen()
+            left_paren.prefix = u" "
+            node_to_split.insert_child(0, left_paren)
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
