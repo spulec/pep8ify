@@ -18,3 +18,6 @@ re_comments, comments, after_comments = spam(
 
 re_comments, comments, after_comments = spam(
     "testing")
+
+new_prefix = u"%s# %s" % ("whitespace_before", "comment_after".lstrip(
+    ))

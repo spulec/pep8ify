@@ -27,7 +27,9 @@ class FixExtraneousWhitespace(BaseFix):
             if node.next_sibling.prefix != new_prefix:
                 node.next_sibling.prefix = new_prefix
                 node.next_sibling.changed()
-        elif node.type in RSTRIP_TOKENS:
+        elif node.type in RSTRIP_TOKENS and not node.prefix.count(u'\n'):
+            # If the prefix has a newline, this node is the beginning
+            # of a newline, no need to do anything.
             new_prefix = node.prefix.rstrip(u' \t')
             if node.prefix != new_prefix:
                 node.prefix = new_prefix
