@@ -1,8 +1,8 @@
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pgen2 import token
 
-RSTRIP_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
-LSTRIP_TOKENS = [token.RPAR, token.RSQB, token.COLON, token.COMMA, token.SEMI,
+LSTRIP_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
+RSTRIP_TOKENS = [token.RPAR, token.RSQB, token.COLON, token.COMMA, token.SEMI,
     token.RBRACE]
 STRIP_TOKENS = RSTRIP_TOKENS + LSTRIP_TOKENS
 
@@ -22,11 +22,13 @@ class FixExtraneousWhitespace(BaseFix):
         return False
 
     def transform(self, node, results):
-        if node.type in RSTRIP_TOKENS and node.get_suffix():
-            if node.next_sibling.prefix != node.next_sibling.prefix.rstrip():
-                node.next_sibling.prefix = node.next_sibling.prefix.rstrip()
+        if node.type in LSTRIP_TOKENS and node.get_suffix():
+            new_prefix = node.next_sibling.prefix.lstrip(u' \t')
+            if node.next_sibling.prefix != new_prefix:
+                node.next_sibling.prefix = new_prefix
                 node.next_sibling.changed()
-        elif node.type in LSTRIP_TOKENS:
-            if node.prefix != node.prefix.lstrip():
-                node.prefix = node.prefix.lstrip()
+        elif node.type in RSTRIP_TOKENS:
+            new_prefix = node.prefix.rstrip(u' \t')
+            if node.prefix != new_prefix:
+                node.prefix = new_prefix
                 node.changed()

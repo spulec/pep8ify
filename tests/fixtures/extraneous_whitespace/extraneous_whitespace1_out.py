@@ -12,3 +12,9 @@ if x == 4:
 if x == 4:
     print x, y
     x, y = y, x
+
+re_comments, comments, after_comments = spam(
+    "testing")
+
+re_comments, comments, after_comments = spam(
+    "testing")
