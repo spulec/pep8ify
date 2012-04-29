@@ -168,8 +168,10 @@ class FixMaximumLineLength(BaseFix):
         node_to_split.replace(new_node)
 
     def parenthesize_parent(self, node_to_split, parenth_before_equals):
-        if node_to_split.type in [symbols.print_stmt, symbols.return_stmt]:
-            self.parenthesize_print_or_return_stmt(node_to_split)
+        if node_to_split.type == symbols.print_stmt:
+            self.parenthesize_print_stmt(node_to_split)
+        elif node_to_split.type == symbols.return_stmt:
+            self.parenthesize_after_arg(node_to_split, u"return")
         elif node_to_split.type == symbols.expr_stmt:
             if parenth_before_equals:
                 self.parenthesize_after_arg(node_to_split, u"=")
@@ -198,7 +200,7 @@ class FixMaximumLineLength(BaseFix):
             node_to_split.append_child(RParen())
             node_to_split.changed()
 
-    def parenthesize_print_or_return_stmt(self, node_to_split):
+    def parenthesize_print_stmt(self, node_to_split):
         # print "hello there"
         # return a, b
         second_child = node_to_split.children[1]

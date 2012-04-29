@@ -25,7 +25,8 @@ class tester:
         new_comment_indent = u''
         new_prefix = u''
         # Split the lines of comment and prepend them with the new indent value
-        new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).rstrip(u' ')
+        if True:
+            new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).rstrip(u' ')
         comment_start = 2
         comments = u''
         prefix = u''

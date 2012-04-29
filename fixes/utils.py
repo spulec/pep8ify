@@ -102,7 +102,7 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
     # Fake the prefix of the first node to be the indent that it should be.
     # We'll set it back afterward.
     first_node_prefix = nodes[0].prefix
-    nodes[0].prefix = u' ' * (nodes[0].column - 1)
+    nodes[0].prefix = u' ' * nodes[0].column
 
     nodes.reverse()
     while nodes:
