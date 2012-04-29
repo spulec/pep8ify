@@ -10,7 +10,8 @@ class FixTrailingBlankLines(BaseFix):
     '''
 
     def match(self, node):
-        # We only want to work with the top-level input since this should only run once.
+        # We only want to work with the top-level input since this should only
+        # run once.
         if node.type != symbols.file_input:
             return
 

@@ -7,13 +7,13 @@ class FixTabs(BaseFix):
     For new projects, spaces-only are strongly recommended over tabs.  Most
     editors have features that make this easy to do.
     '''
-    
+
     def match(self, node):
         if node.prefix.count(u'\t') or (isinstance(node, Leaf)
             and node.value.count(u'\t')):
             return True
         return False
-    
+
     def transform(self, node, results):
         new_prefix = node.prefix.replace(u'\t', u'    ')
         new_value = node.value.replace(u'\t', u'    ')

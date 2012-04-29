@@ -39,7 +39,8 @@ def get_last_child_with_whitespace(node):
 def has_parent(node, symbol_type):
     # Returns if node has a parent of type symbol_type
     if node.parent:
-        return node.parent.type == symbol_type or has_parent(node.parent, symbol_type)
+        return node.parent.type == symbol_type or has_parent(node.parent,
+            symbol_type)
 
 
 def prefix_indent_count(node):
@@ -54,8 +55,9 @@ def tuplize_comments(prefix):
 
     if not prefix:
         return (u'', u'', u'')
-    
-    # If there are no newlines, this was just a trailing comment. Leave it alone.
+
+    # If there are no newlines, this was just a trailing comment. Leave it
+    # alone.
     if not prefix.count(u'\n'):
         return (u'', prefix, u'')
 
@@ -63,16 +65,20 @@ def tuplize_comments(prefix):
         whitespace_before_first_comment = prefix[:prefix.index(u"#")]
         start_of_comment = whitespace_before_first_comment.rfind(u'\n')
         if prefix.rfind(u'\n') > prefix.index(u'#'):
-            comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()  # Add a single newline back if it was stripped
+            comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()
+            # Add a single newline back if it was stripped
         else:
             comments = prefix[start_of_comment + 1:].rstrip()
     else:
         if prefix.count(u'\n'):
-            comments = prefix.rsplit(u'\n')[1]  # If no comments, there are no comments except the trailing spaces before the current line
+            comments = prefix.rsplit(u'\n')[1]
+            # If no comments, there are no comments except the trailing spaces
+            # before the current line
         else:
             comments = prefix
     comments_start = prefix.index(comments)
-    return prefix[:comments_start].strip(u' '), comments, prefix[comments_start + len(comments):]
+    return prefix[:comments_start].strip(u' '), comments, prefix[
+        comments_start + len(comments):]
 
 
 def get_quotes(text):
@@ -96,7 +102,8 @@ def get_quotes(text):
 
 
 # Like TextWrapper, but for leaves
-def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u''):
+def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
+    subsequent_indent=u''):
     lines = []
 
     # Fake the prefix of the first node to be the indent that it should be.
@@ -121,7 +128,7 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
 
         while nodes:
             last_node = nodes[-1]
-            
+
             if lines and not curr_line:
                 # Strip prefixes for subsequent lines
                 last_node.prefix = u''
@@ -137,10 +144,12 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
             else:
                 # only disallow breaking on/after equals if parent of this type
                 if nodes and nodes[-1].type in [token.COMMA, token.EQUAL]:
-                    # We don't want the next line to start on one of these tokens
+                    # We don't want the next line to start on one of these
+                    # tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)
-                if curr_line and curr_line[-1].type == token.EQUAL and curr_line[-1].parent.type != symbols.expr_stmt:
+                if (curr_line and curr_line[-1].type == token.EQUAL and
+                    curr_line[-1].parent.type != symbols.expr_stmt):
                     # We don't want this line to end on one of these tokens
                     node_to_move = curr_line.pop()
                     nodes.append(node_to_move)
@@ -148,15 +157,14 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'', subsequent_indent=u'
                     nodes.append(node_to_move)
                 break
 
-        # The current line is full, and the next chunk is too big to
-        # fit on *any* line (not just this one).
-        # TODO implement this at some point
-        # if nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
-        #     self._handle_long_word(nodes, curr_line, curr_len, width)
+        # The current line is full, and the next chunk is too big to fit on
+        # *any* line (not just this one). TODO implement this at some point if
+        # nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
+        # self._handle_long_word(nodes, curr_line, curr_len, width)
 
         if curr_line:
             curr_line[0].prefix = "%s%s" % (indent, curr_line[0].prefix)
             lines.append(curr_line)
-    
+
     lines[0][0].prefix = first_node_prefix
     return lines

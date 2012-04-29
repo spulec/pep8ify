@@ -23,8 +23,10 @@ class FixTrailingWhitespace(BaseFix):
     def transform(self, node, results):
         if node.prefix.count(u'#'):
             prefix_split = node.prefix.split(u'\n')
-            # Rstrip every line except for the last one, since that is the whitespace before this line
-            new_prefix = u'\n'.join([line.rstrip(u' \t') for line in prefix_split[:-1]] + [prefix_split[-1]])
+            # Rstrip every line except for the last one, since that is the
+            # whitespace before this line
+            new_prefix = u'\n'.join([line.rstrip(u' \t') for line in
+                prefix_split[:-1]] + [prefix_split[-1]])
         else:
             new_prefix = node.prefix.lstrip(u' \t')
         if node.prefix != new_prefix:

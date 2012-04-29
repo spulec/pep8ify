@@ -29,7 +29,7 @@ class FixIndentation(BaseFix):
         if isinstance(node, Leaf):
             return True
         return False
-    
+
     def transform(self, node, results):
         if node.type == token.INDENT:
             self.transform_indent(node)
@@ -47,10 +47,12 @@ class FixIndentation(BaseFix):
         new_value = u' ' * 4 * len(self.indents)
 
         new_prefix = node.prefix
-        # Strip any previous newlines since they shouldn't change the comment indent
+        # Strip any previous newlines since they shouldn't change the comment
+        # indent
         comment_indent = node.prefix.strip(u'\n').find(u"#")
         if comment_indent > -1:
-            # Determine if we should align the comment with the line before or after
+            # Determine if we should align the comment with the line before or
+            # after
             if comment_indent == node.next_sibling.leaves().next().column:
                 # This comment should be aligned with its next_sibling
                 new_comment_indent = new_value
@@ -58,8 +60,10 @@ class FixIndentation(BaseFix):
                 # This comment should be aligned with the previous indent
                 new_comment_indent = u' ' * 4 * (len(self.indents) - 1)
 
-            # Split the lines of comment and prepend them with the new indent value
-            new_prefix = '\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).rstrip(u' ')
+            # Split the lines of comment and prepend them with the new indent
+            # value
+            new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for line in new_prefix.split('\n')]).
+                rstrip(u' '))
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
@@ -97,7 +101,8 @@ class FixIndentation(BaseFix):
         if node.prefix:
             new_indent = len(self.indents)
             if newline:
-                # Don't reindent continuing lines that are already indented past where they need to be.
+                # Don't reindent continuing lines that are already indented
+                # past where they need to be.
                 current_indent = prefix_indent_count(node)
                 if current_indent > self.prev_line_indent:
                     return

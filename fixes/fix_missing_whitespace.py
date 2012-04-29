@@ -8,11 +8,12 @@ class FixMissingWhitespace(BaseFix):
     u'''
     Each comma, semicolon or colon should be followed by whitespace.
     '''
-    
+
     def match(self, node):
-        if node.type in (token.COLON, token.COMMA, token.SEMI) and node.get_suffix() != u" ":
+        if (node.type in (token.COLON, token.COMMA, token.SEMI) and node.
+            get_suffix() != u" "):
             # If there is a newline after, no space
-            if (node.get_suffix().find(u'\n') == 0 or 
+            if (node.get_suffix().find(u'\n') == 0 or
                 (node.next_sibling and node.next_sibling.children and
                 node.next_sibling.children[0] == Newline())):
                 return False
@@ -24,7 +25,7 @@ class FixMissingWhitespace(BaseFix):
                 return False
             return True
         return False
-    
+
     def transform(self, node, results):
         new_prefix = u" %s" % node.next_sibling.prefix.lstrip(u' \t')
         if node.next_sibling.prefix != new_prefix:

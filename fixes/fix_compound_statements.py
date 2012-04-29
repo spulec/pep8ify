@@ -14,19 +14,23 @@ class FixCompoundStatements(BaseFix):
     on the same line, never do this for multi-clause statements. Also
     avoid folding such long lines!
     '''
-    
+
     def match(self, node):
         results = {}
-        if node.prev_sibling and isinstance(node.prev_sibling, Leaf) and node.prev_sibling.type == token.COLON and node.type != symbols.suite:
-            # If it's inside a lambda definition, subscript, or sliceop, leave it alone
-            if node.parent.type in [symbols.lambdef, symbols.subscript, symbols.sliceop, symbols.dictsetmaker]:
+        if (node.prev_sibling and isinstance(node.prev_sibling, Leaf) and node.
+            prev_sibling.type == token.COLON and node.type != symbols.suite):
+            # If it's inside a lambda definition, subscript, or sliceop, leave
+            # it alone
+            if node.parent.type in [symbols.lambdef, symbols.subscript,
+                symbols.sliceop, symbols.dictsetmaker]:
                 pass
             else:
                 results["colon"] = True
-        if node.type == symbols.simple_stmt and Leaf(token.SEMI, u';') in node.children:
+        if (node.type == symbols.simple_stmt and Leaf(token.SEMI, u';') in node
+            .children):
             results["semi"] = True
         return results
-    
+
     def transform(self, node, results):
         if results.get("colon"):
             node = self.transform_colon(node)
@@ -39,10 +43,11 @@ class FixCompoundStatements(BaseFix):
         node_copy.prefix = node_copy.prefix.lstrip()
         old_depth = find_indentation(node)
         new_indent = u'%s%s' % ((u' ' * 4), old_depth)
-        new_node = Node(symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, new_indent), node_copy, Leaf(token.DEDENT, u'')])
+        new_node = Node(symbols.suite, [Leaf(token.NEWLINE, u'\n'), Leaf(token
+            .INDENT, new_indent), node_copy, Leaf(token.DEDENT, u'')])
         node.replace(new_node)
         node.changed()
-        
+
         # Replace node with new_node in case semi
         return node_copy
 
@@ -50,12 +55,15 @@ class FixCompoundStatements(BaseFix):
         for child in node.children:
             if child.type == token.SEMI:
                 # Strip any whitespace from the next sibling
-                if child.next_sibling.prefix != child.next_sibling.prefix.lstrip():
-                    child.next_sibling.prefix = child.next_sibling.prefix.lstrip()
+                if (child.next_sibling.prefix != child.next_sibling.prefix.
+                    lstrip()):
+                    child.next_sibling.prefix = (child.next_sibling.prefix.
+                        lstrip())
                     child.next_sibling.changed()
                 # Replace the semi with a newline
                 old_depth = find_indentation(child)
-                
-                child.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT, old_depth)])
+
+                child.replace([Leaf(token.NEWLINE, u'\n'), Leaf(token.INDENT,
+                    old_depth)])
                 child.changed()
         return node

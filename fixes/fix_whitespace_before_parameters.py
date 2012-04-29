@@ -15,7 +15,8 @@ class FixWhitespaceBeforeParameters(BaseFix):
     '''
 
     def match(self, node):
-        if node.type in (token.LPAR, token.LSQB) and node.parent.type == symbols.trailer:
+        if (node.type in (token.LPAR, token.LSQB) and node.parent.type ==
+            symbols.trailer):
             return True
         return False
 

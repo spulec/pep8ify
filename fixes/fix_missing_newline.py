@@ -13,7 +13,8 @@ class FixMissingNewline(BaseFix):
     '''
 
     def match(self, node):
-        # We only want to work with the top-level input since this should only run once.
+        # We only want to work with the top-level input since this should only
+        # run once.
         if node.type != symbols.file_input:
             return
 
@@ -23,7 +24,7 @@ class FixMissingNewline(BaseFix):
             # If none of those have a prefix containing a newline,
             # we need to add one
             return leaves_after_last_newline[0]
-    
+
     def transform(self, node, leaf):
         if leaf.prefix != u'\n':
             leaf.prefix = u'\n'
