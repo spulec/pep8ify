@@ -7,6 +7,5 @@
 
 Issues
 -cleanup max_line_length
--test line < 70, then line > 80 with inline comment on first line
 -allow to break on string during maximum_line_length
 -pep8 complains about spaces on blank lines in docstrings.

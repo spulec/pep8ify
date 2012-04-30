@@ -10,7 +10,8 @@ new_prefix = '\n'.join([u"%s%s" % ("new_comment_indent", line.lstrip()) if line 
 from .utils import get_whitespace_before_definition, has_parent, tuplize_comments
 before_comments, comments, after_comments_and_this_string_goes_on = tuplize_comments(u"asjdfsjf js ffsadasdfsf")
 
-new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for
+# Comment 1
+new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line else u'' for  # A Comment
     line in new_prefix.split('\n')]).rstrip(u' '))
 
 

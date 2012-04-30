@@ -19,8 +19,10 @@ from .utils import (get_whitespace_before_definition, has_parent,
 before_comments, comments, after_comments_and_this_string_goes_on = (
     tuplize_comments(u"asjdfsjf js ffsadasdfsf"))
 
+# Comment 1
 new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.lstrip()) if line
     else u'' for line in new_prefix.split('\n')]).rstrip(u' '))
+    # A Comment
 
 
 class tester:

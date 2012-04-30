@@ -43,19 +43,19 @@ class FixMaximumLineLength(BaseFix):
         return False
 
     def transform(self, node, results):
+        if self.node_needs_splitting(node):
+            node_to_split = node.prev_sibling
+            if node_to_split.type == token.STRING:
+                self.fix_docstring(node_to_split)
+            else:
+                combined_prefix = self.fix_leaves(node_to_split)
+                if combined_prefix:
+                    node.prefix = u"%s\n%s" % (node.prefix, combined_prefix.rstrip())
         if (any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')) or
             node.prefix.count(u"#") and node.column + len(node.prefix) >
             MAX_CHARS):
             # Need to fix the prefix
             self.fix_prefix(node)
-        if self.node_needs_splitting(node):
-            node_to_split = node.prev_sibling
-            if not node_to_split:
-                return
-            if node_to_split.type == token.STRING:
-                self.fix_docstring(node_to_split)
-            else:
-                self.fix_leaves(node_to_split)
 
     @staticmethod
     def node_needs_splitting(node):
@@ -98,7 +98,7 @@ class FixMaximumLineLength(BaseFix):
             # If inline comment is too long, we'll move it to the next line
             split_lines[0] = u"\n%s" % split_lines[0]
         else:
-            #We need to add back a newline that was lost above
+            # We need to add back a newline that was lost above
             after_comments = u"\n%s" % after_comments
         new_prefix = u'%s%s%s' % (before_comments, u'\n'.join(split_lines),
             after_comments)
@@ -150,8 +150,14 @@ class FixMaximumLineLength(BaseFix):
         # For now, just indent additional lines by 4 more spaces
 
         child_leaves = []
+        combined_prefix = u""
         prev_leaf = None
         for index, leaf in enumerate(node_to_split.leaves()):
+            if index and leaf.prefix.count(u'#'):
+                if not combined_prefix:
+                    combined_prefix = u"%s#" % new_indent
+                combined_prefix += leaf.prefix.split(u'#')[-1]
+
             # We want to strip all newlines so we can properly insert newlines
             # where they should be
             if leaf.type != token.NEWLINE:
@@ -162,6 +168,8 @@ class FixMaximumLineLength(BaseFix):
                         leaf.prefix = u""
                     else:
                         leaf.prefix = u" "
+                    
+                    # Append any trailing inline comments to the combined prefix
                 child_leaves.append(leaf)
                 prev_leaf = leaf
 
@@ -201,6 +209,8 @@ class FixMaximumLineLength(BaseFix):
             parenth_before_equals = Leaf(token.EQUAL, u"=") in split_leaves[0]
             self.parenthesize_parent(new_node, parenth_before_equals)
         node_to_split.replace(new_node)
+
+        return combined_prefix
 
     def parenthesize_parent(self, node_to_split, parenth_before_equals):
         if node_to_split.type == symbols.print_stmt:
