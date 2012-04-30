@@ -32,8 +32,9 @@ class FixMaximumLineLength(BaseFix):
             parent.type in SYMBOLS_WITH_NEWLINES_IN_COLONS):
             # Sometimes the newline is wrapped into the next node, so we need
             # to check the colons also.
-            if (node.column > MAX_CHARS or node.type == token.COLON and node.
-                column + len(node.value) > MAX_CHARS):
+            if ((node.prev_sibling and any(child.column > MAX_CHARS for child in node.prev_sibling.leaves()))
+                or node.type == token.COLON and node.column + len(node.value) > MAX_CHARS
+                or node.column > MAX_CHARS):
                 # For colon nodes, we need to add the len of the colon also
                 return True
         if any(len(line) > MAX_CHARS for line in node.prefix.split('\n')):
@@ -47,12 +48,7 @@ class FixMaximumLineLength(BaseFix):
             MAX_CHARS):
             # Need to fix the prefix
             self.fix_prefix(node)
-        if node.type == token.NEWLINE:
-            node_length = len(node.prefix)
-        elif node.type == token.COLON:
-            node_length = len(node.prefix) - len(node.value)
-        if (node.type in [token.NEWLINE, token.COLON] and node.column -
-            node_length > MAX_CHARS):
+        if self.node_needs_splitting(node):
             node_to_split = node.prev_sibling
             if not node_to_split:
                 return
@@ -60,6 +56,21 @@ class FixMaximumLineLength(BaseFix):
                 self.fix_docstring(node_to_split)
             else:
                 self.fix_leaves(node_to_split)
+
+    @staticmethod
+    def node_needs_splitting(node):
+        if not node.prev_sibling:
+            return False
+        
+        if node.type == token.NEWLINE:
+            node_length = len(node.prefix)
+        elif node.type == token.COLON:
+            node_length = len(node.prefix) - len(node.value)
+        if node.type in [token.NEWLINE, token.COLON]:
+            if node.column - node_length > MAX_CHARS:
+                return True
+            if any(child.column > MAX_CHARS for child in node.prev_sibling.leaves()):
+                return True
 
     def fix_prefix(self, node):
         before_comments, comments, after_comments = tuplize_comments(node.
@@ -139,6 +150,7 @@ class FixMaximumLineLength(BaseFix):
         # For now, just indent additional lines by 4 more spaces
 
         child_leaves = []
+        prev_leaf = None
         for index, leaf in enumerate(node_to_split.leaves()):
             # We want to strip all newlines so we can properly insert newlines
             # where they should be
@@ -146,8 +158,12 @@ class FixMaximumLineLength(BaseFix):
                 if leaf.prefix.count(u'\n') and index:
                     # If the line contains a newline, we need to strip all
                     # whitespace since there were leading indent spaces
-                    leaf.prefix = u" "
+                    if prev_leaf and prev_leaf.type == token.DOT:
+                        leaf.prefix = u""
+                    else:
+                        leaf.prefix = u" "
                 child_leaves.append(leaf)
+                prev_leaf = leaf
 
         # Like TextWrapper, but for nodes. We split on MAX_CHARS - 1 since we
         # may need to insert a leading parenth. It's not great, but it would be
