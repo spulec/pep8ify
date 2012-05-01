@@ -167,7 +167,7 @@ class FixMaximumLineLength(BaseFix):
                 if leaf.prefix.count(u'\n') and index:
                     # If the line contains a newline, we need to strip all
                     # whitespace since there were leading indent spaces
-                    if prev_leaf and prev_leaf.type == token.DOT:
+                    if prev_leaf and prev_leaf.type in [token.DOT, token.LPAR]:
                         leaf.prefix = u""
                     else:
                         leaf.prefix = u" "
