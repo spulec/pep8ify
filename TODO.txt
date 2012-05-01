@@ -8,7 +8,6 @@ Issues
 ./roughage/utils.py:21:1: E302 expected 2 blank lines, found 1
 ./roughage/management/commands/plant.py:15:46: E201 whitespace after '('
 ./roughage/management/commands/reap.py:17:80: E501 line too long (80 characters)
-./roughage/management/commands/reap.py:91:37: W292 no newline at end of file
 
 -cleanup max_line_length
 -allow to break on string during maximum_line_length
