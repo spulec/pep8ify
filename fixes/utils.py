@@ -112,7 +112,6 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
 
     nodes.reverse()
     while nodes:
-
         curr_line = []
         curr_len = 0
 
@@ -157,9 +156,10 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
                 break
 
         # The current line is full, and the next chunk is too big to fit on
-        # *any* line (not just this one). TODO implement this at some point if
-        # nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
-        # self._handle_long_word(nodes, curr_line, curr_len, width)
+        # *any* line (not just this one).
+        if nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
+            curr_line.append(nodes.pop())
+            curr_len += len(nodes[-1].value) + len(nodes[-1].prefix)
 
         if curr_line:
             curr_line[0].prefix = "%s%s" % (indent, curr_line[0].prefix)
