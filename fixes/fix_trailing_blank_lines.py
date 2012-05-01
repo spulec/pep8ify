@@ -30,7 +30,12 @@ class FixTrailingBlankLines(BaseFix):
             else:
                 # We haven't stripped any newlines yet. We need to strip all
                 # whitespace, but leave a single newline.
-                new_prefix = u'%s%s' % ('\n', result.prefix.rstrip())
+                if result.prefix.strip():
+                    # If there are existing comments, we need to add two
+                    # newlines in order to have a trailing newline.
+                    new_prefix = u'%s\n\n' % result.prefix.rstrip()
+                else:
+                    new_prefix = u'%s\n' % result.prefix.rstrip()
                 if result.prefix != new_prefix:
                     result.prefix = new_prefix
                     result.changed()

@@ -12,10 +12,9 @@ MAX_CHARS = 79
 def get_leaves_after_last_newline(node):
     # Get all of the leaves after the last newline leaf
     all_leaves = []
-    for leaf in node.leaves():
-        all_leaves.append(leaf)
     last_newline_leaf_index = -1
-    for index, leaf in enumerate(all_leaves):
+    for index, leaf in enumerate(node.leaves()):
+        all_leaves.append(leaf)
         if leaf.type == token.NEWLINE:
             last_newline_leaf_index = index
     return all_leaves[last_newline_leaf_index + 1:]
