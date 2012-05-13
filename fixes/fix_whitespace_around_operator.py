@@ -68,6 +68,8 @@ class FixWhitespaceAroundOperator(BaseFix):
                 node.changed()
 
         next_sibling = node.next_sibling
+        if not next_sibling:
+            return
         if next_sibling.prefix.count(u'\n'):
             next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
         else:
