@@ -3,7 +3,7 @@ Pep8ify: Clean your code with ease
 
 
 Pep8ify is a library that modifies python source code to conform to
-`pep8<http://www.python.org/dev/peps/pep-0008/>`_.
+pep8_.
 
 
 Installation
@@ -32,7 +32,7 @@ if you are not using a version control system. Although this code is
 well-tested, there are most likely bugs still.
 
 For more options about running particular fixers, read the
-`lib2to3 documentation<http://docs.python.org/library/2to3.html>_`. This
+`lib2to3 documentation`_. This
 library is built on top of that one.
 
 Fixes
@@ -56,3 +56,6 @@ A list of the available fixers can be found with the following: ::
     whitespace_around_operator
     whitespace_before_inline_comment
     whitespace_before_parameters
+
+.. _`lib2to3 documentation`: http://docs.python.org/library/2to3.html
+.. _pep8: http://www.python.org/dev/peps/pep-0008/
