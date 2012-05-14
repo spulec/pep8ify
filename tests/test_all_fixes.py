@@ -65,7 +65,8 @@ def check_fixture(in_file, out_file, fixer):
     if fixer:
         main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
     else:
-        main("pep8ify.fixes", args=['-w', in_file])
+        main("pep8ify.fixes", args=['--fix', 'all',
+            '--fix', 'maximum_line_length', '-w', in_file])
     in_file_contents = open(in_file, u'r').readlines()
     out_file_contents = open(out_file, u'r').readlines()
     assert in_file_contents == out_file_contents, \
