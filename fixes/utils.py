@@ -1,5 +1,6 @@
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
+from lib2to3.pytree import Leaf
 
 BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
@@ -18,6 +19,15 @@ def get_leaves_after_last_newline(node):
         if leaf.type == token.NEWLINE:
             last_newline_leaf_index = index
     return all_leaves[last_newline_leaf_index + 1:]
+
+
+def first_child_leaf(node):
+    if isinstance(node, Leaf):
+        return node
+    elif node.children:
+        return first_child_leaf(node.children[0])
+    else:
+        return None
 
 
 def get_whitespace_before_definition(node):
@@ -47,6 +57,11 @@ def prefix_indent_count(node):
     return len(node.prefix.split(u'\n')[-1].replace(u'\t', u' ' * 4))
 
 
+def node_length(*nodes):
+    return sum(len(node.prefix.strip(u'\n\t')) +
+        len(node.value.strip(u'\n\t')) for node in nodes)
+
+
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
     # Given u'\n\n\n    # test comment\n    \n'
@@ -63,9 +78,10 @@ def tuplize_comments(prefix):
     if prefix.count("#"):
         whitespace_before_first_comment = prefix[:prefix.index(u"#")]
         start_of_comment = whitespace_before_first_comment.rfind(u'\n')
-        if prefix.rfind(u'\n') > prefix.index(u'#'):
+        if prefix.count(u'\n') and not prefix.split(u'\n')[-1].strip():
+            # Add a single newline back if there was a newline in the ending
+            # whitespace
             comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()
-            # Add a single newline back if it was stripped
         else:
             comments = prefix[start_of_comment + 1:].rstrip()
     else:
@@ -112,6 +128,7 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
 
     nodes.reverse()
     while nodes:
+        tracking_back = False
         curr_line = []
         curr_len = 0
 
@@ -131,12 +148,12 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
                 # Strip prefixes for subsequent lines
                 last_node.prefix = u''
 
-            node_length = len(last_node.prefix) + len(last_node.value)
+            curr_node_length = node_length(last_node)
 
             # Can at least squeeze this chunk onto the current line.
-            if curr_len + node_length <= curr_width:
+            if curr_len + curr_node_length <= curr_width:
                 curr_line.append(nodes.pop())
-                curr_len += node_length
+                curr_len += curr_node_length
 
             # Nope, this line is full.
             else:
@@ -144,26 +161,47 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
                 if nodes and nodes[-1].type in [token.COMMA, token.EQUAL]:
                     # We don't want the next line to start on one of these
                     # tokens
-                    node_to_move = curr_line.pop()
-                    nodes.append(node_to_move)
+                    tracking_back = True
+                    nodes.append(curr_line.pop())
                 if (curr_line and curr_line[-1].type == token.EQUAL and
                     curr_line[-1].parent.type != symbols.expr_stmt):
-                    # We don't want this line to end on one of these tokens
-                    node_to_move = curr_line.pop()
-                    nodes.append(node_to_move)
-                    node_to_move = curr_line.pop()
-                    nodes.append(node_to_move)
+                    # We don't want this line to end on one of these tokens.
+                    # Move the last two nodes back onto the list
+                    tracking_back = True
+                    nodes.extend(reversed(curr_line[-2:]))
+                    del curr_line[-2:]
                 break
 
         # The current line is full, and the next chunk is too big to fit on
         # *any* line (not just this one).
-        if nodes and len(nodes[-1].value) + len(nodes[-1].prefix) > curr_width:
-            curr_line.append(nodes.pop())
-            curr_len += len(nodes[-1].value) + len(nodes[-1].prefix)
+        if nodes:
+            next_chunk_length = node_length(nodes[-1])
+            if tracking_back:
+                next_chunk_length += node_length(nodes[-2])
+            if next_chunk_length > curr_width:
+                curr_line.append(nodes.pop())
+                if nodes and nodes[-1].type in [token.COMMA, token.EQUAL]:
+                    # We don't want the next line to start on these chars, just
+                    # add them here Check maximum_line_length3_in:4 for an
+                    # example
+                    curr_line.append(nodes.pop())
+            elif (len(nodes) > 2 and not curr_line and
+                node_length(*nodes[-3:]) > curr_width):
+                # This scenario happens when we were not able to break on an
+                # assignment statement above and the next line is still too
+                # long. Remove the last 3 nodes and move them to curr_line
+                curr_line.extend(reversed(nodes[-3:]))
+                del nodes[-3:]
+                if nodes and nodes[-1].type in [token.COMMA, token.EQUAL]:
+                    curr_len += node_length(nodes[-1])
+                    curr_line.append(nodes.pop())
 
         if curr_line:
             curr_line[0].prefix = "%s%s" % (indent, curr_line[0].prefix)
             lines.append(curr_line)
+        else:
+            assert False, ("There was an error parsing this line."
+                "Please report this to the package owner.")
 
     lines[0][0].prefix = first_node_prefix
     return lines

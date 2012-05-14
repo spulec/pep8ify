@@ -5,7 +5,7 @@ from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Leaf, Node
 from textwrap import TextWrapper
 
-from .utils import tuplize_comments, get_quotes, wrap_leaves
+from .utils import tuplize_comments, get_quotes, wrap_leaves, first_child_leaf
 
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
@@ -46,6 +46,8 @@ class FixMaximumLineLength(BaseFix):
             if node_to_split.type == token.STRING:
                 self.fix_docstring(node_to_split)
             else:
+                if isinstance(node_to_split, Leaf):
+                    node_to_split = node_to_split.parent
                 combined_prefix = self.fix_leaves(node_to_split)
                 if combined_prefix:
                     node.prefix = u"%s\n%s" % (node.prefix, combined_prefix.
@@ -102,25 +104,29 @@ class FixMaximumLineLength(BaseFix):
         # It's an inline comment if it has not newlines
         is_inline_comment = not node.prefix.count(u'\n')
 
-        initial_indent_level = comments.index(u'#')
-        if is_inline_comment:
-            # If inline comment, find where the prev sibling started to know
-            # how to indent lines
-            initial_indent_level = node.prev_sibling.children[0].column
-        indent = u'%s# ' % (u' ' * initial_indent_level)
-
-        wrapper = TextWrapper(width=MAX_CHARS, initial_indent=indent,
-            subsequent_indent=indent)
-        split_lines = wrapper.wrap(all_comments)
-
-        if is_inline_comment:
-            # If inline comment is too long, we'll move it to the next line
-            split_lines[0] = u"\n%s" % split_lines[0]
+        initial_indent_level = comments.find(u'#')
+        if initial_indent_level == -1:
+            split_lines = [u'']
         else:
-            # We need to add back a newline that was lost above
-            after_comments = u"\n%s" % after_comments
+            if is_inline_comment and node.prev_sibling:
+                # If inline comment, find where the prev sibling started to
+                # know how to indent lines
+                initial_indent_level = (first_child_leaf(node.prev_sibling).
+                    column)
+            indent = u'%s# ' % (u' ' * initial_indent_level)
+
+            wrapper = TextWrapper(width=MAX_CHARS, initial_indent=indent,
+                subsequent_indent=indent)
+            split_lines = wrapper.wrap(all_comments)
+
+            if is_inline_comment:
+                # If inline comment is too long, we'll move it to the next line
+                split_lines[0] = u"\n%s" % split_lines[0]
+            else:
+                # We need to add back a newline that was lost above
+                after_comments = u"\n%s" % after_comments
         new_prefix = u'%s%s%s' % (before_comments, u'\n'.join(split_lines),
-            after_comments)
+            after_comments.lstrip(u' '))
         # Append the trailing spaces back
         if node.prefix != new_prefix:
             node.prefix = new_prefix
