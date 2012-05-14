@@ -27,6 +27,8 @@ class FixMaximumLineLength(BaseFix):
     length to 72 characters is recommended.
     '''
 
+    explicit = True  # The user must ask for this fixer
+
     def match(self, node):
         if (node.type in [token.NEWLINE] or node.type == token.COLON and node.
             parent.type in SYMBOLS_WITH_NEWLINES_IN_COLONS):
