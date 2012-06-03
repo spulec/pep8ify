@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Pep8ify : A library that modifies python source code to conform to pep8." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Pep8ify</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/spulec/pep8ify">View on GitHub</a>
+
+          <h1 id="project_title">Pep8ify</h1>
+          <h2 id="project_tagline">A library that modifies python source code to conform to pep8.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/spulec/pep8ify/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/spulec/pep8ify/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Pep8ify: Clean your code with ease</h1>
+
+<p>Pep8ify is a library that modifies python source code to conform to
+<a href="http://www.python.org/dev/peps/pep-0008/">pep8</a>.</p>
+
+<h2>Installation</h2>
+
+<p>To install pep8ify, simply:</p>
+
+<pre><code>$ pip install pep8ify
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>To print a diff of changes that pep8ify will make against a particular source
+file or directory:</p>
+
+<pre><code>$ pep8ify source_folder
+</code></pre>
+
+<p>To have those changes written to the files:</p>
+
+<pre><code>$ pep8ify -w source_folder
+</code></pre>
+
+<p>By default, this will create backup files for each file that will be changed.
+You can add the <code>-n</code> option to not create the backups. Please do not do this
+if you are not using a version control system. Although this code is
+well-tested, there are most likely bugs still.</p>
+
+<p>For more options about running particular fixers, read the
+<a href="http://docs.python.org/library/2to3.html">lib2to3 documentation</a>. This
+library is built on top of that one.</p>
+
+<h2>Fixes</h2>
+
+<p>A list of the available fixers can be found with the following:</p>
+
+<pre><code>$ pep8ify -l
+Available transformations for the -f/--fix option:
+blank_lines
+compound_statements
+extraneous_whitespace
+imports_on_separate_lines
+indentation
+maximum_line_length
+missing_newline
+missing_whitespace
+tabs
+trailing_blank_lines
+trailing_whitespace
+whitespace_around_operator
+whitespace_before_inline_comment
+whitespace_before_parameters
+</code></pre>
+
+<p>All of these are set to run by default except for 'maximum_line_length'.
+To run all fixes including 'maximum_line_length', run:</p>
+
+<pre><code>$ pep8ify -f all -f idioms example.py
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Pep8ify maintained by <a href="https://github.com/spulec">spulec</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-32363222-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
