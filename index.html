@@ -34,11 +34,11 @@
         <h1>Pep8ify: Clean your code with ease</h1>
 
 <p>Pep8ify is a library that modifies python source code to conform to
-pep8_.</p>
+<a href="http://www.python.org/dev/peps/pep-0008/">pep8</a>.</p>
 
 <h2>Installation</h2>
 
-<p>To install pep8ify, simply: ::</p>
+<p>To install pep8ify, simply:</p>
 
 <pre><code>$ pip install pep8ify
 </code></pre>
@@ -46,12 +46,12 @@ pep8_.</p>
 <h2>Usage</h2>
 
 <p>To print a diff of changes that pep8ify will make against a particular source
-file or directory: ::</p>
+file or directory:</p>
 
 <pre><code>$ pep8ify source_folder
 </code></pre>
 
-<p>To have those changes written to the files: ::</p>
+<p>To have those changes written to the files:</p>
 
 <pre><code>$ pep8ify -w source_folder
 </code></pre>
@@ -62,12 +62,12 @@ if you are not using a version control system. Although this code is
 well-tested, there are most likely bugs still.</p>
 
 <p>For more options about running particular fixers, read the
-<code>lib2to3 documentation</code>_. This
+<a href="http://docs.python.org/library/2to3.html">lib2to3 documentation</a>. This
 library is built on top of that one.</p>
 
 <h2>Fixes</h2>
 
-<p>A list of the available fixers can be found with the following: ::</p>
+<p>A list of the available fixers can be found with the following:</p>
 
 <pre><code>$ pep8ify -l
 Available transformations for the -f/--fix option:
@@ -88,13 +88,10 @@ whitespace_before_parameters
 </code></pre>
 
 <p>All of these are set to run by default except for 'maximum_line_length'.
-To run all fixes including 'maximum_line_length', run: ::</p>
+To run all fixes including 'maximum_line_length', run:</p>
 
 <pre><code>$ pep8ify -f all -f idioms example.py
 </code></pre>
-
-<p>.. _<code>lib2to3 documentation</code>: <a href="http://docs.python.org/library/2to3.html">http://docs.python.org/library/2to3.html</a>
-.. _pep8: <a href="http://www.python.org/dev/peps/pep-0008/">http://www.python.org/dev/peps/pep-0008/</a></p>
       </section>
     </div>
 
