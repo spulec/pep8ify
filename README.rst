@@ -60,7 +60,7 @@ A list of the available fixers can be found with the following: ::
 All of these are set to run by default except for 'maximum_line_length'.
 To run all fixes including 'maximum_line_length', run: ::
 
-    $ 2to3 -f all -f idioms example.py
+    $ pep8ify -f all -f idioms example.py
 
 
 .. _`lib2to3 documentation`: http://docs.python.org/library/2to3.html
