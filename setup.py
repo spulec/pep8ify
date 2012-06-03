@@ -11,7 +11,7 @@ setup(
     author="Steve Pulec",
     author_email="spulec@gmail.com",
     url="https://github.com/spulec/pep8ify",
-    packages=["pep8ify"],
+    packages=["pep8ify", "pep8ify.fixes"],
     entry_points={
         'console_scripts': [
             'pep8ify = pep8ify.pep8ify:_main',
