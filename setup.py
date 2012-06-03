@@ -14,7 +14,7 @@ setup(
     packages=["pep8ify"],
     entry_points={
         'console_scripts': [
-            'pep8ify = pep8ify:_main',
+            'pep8ify = pep8ify.pep8ify:_main',
         ],
     },
     classifiers=[
