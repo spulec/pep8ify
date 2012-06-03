@@ -9,7 +9,7 @@ sys.path.insert(0, abspath(join(dirname(__file__), u"../")))
 
 
 def _main():
-    sys.exit(main("pep8ify.pep8ify.fixes"))
+    sys.exit(main("pep8ify.fixes"))
 
 if __name__ == '__main__':
     _main()
