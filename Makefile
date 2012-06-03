@@ -7,5 +7,8 @@ init:
 test:
 	nosetests --with-color ./tests/
 
+travis:
+	nosetests ./tests/
+
 tdaemon:
 	tdaemon -t nose ./tests/ --custom-args="--with-growl"
