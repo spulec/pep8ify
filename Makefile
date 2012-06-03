@@ -5,7 +5,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests --nocapture --with-color ./tests/
+	nosetests --with-color ./tests/
 
 tdaemon:
 	tdaemon -t nose ./tests/ --custom-args="--with-growl"
