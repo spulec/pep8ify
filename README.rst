@@ -2,6 +2,8 @@ Pep8ify: Clean your code with ease
 ==================================
 
 
+.. image:: https://secure.travis-ci.org/spulec/pep8ify.png?branch=master
+
 Pep8ify is a library that modifies python source code to conform to
 pep8_.
 
