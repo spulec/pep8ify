@@ -11,6 +11,8 @@ pep8_.
 Installation
 ------------
 
+This library currently only works with python 2.7
+
 To install pep8ify, simply: ::
 
     $ pip install pep8ify
