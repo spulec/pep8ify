@@ -32,6 +32,11 @@ class Foo:
     def bar2():
         pass
 
+@decoratedclass
+class Baz:
+    def zorp():
+        pass
+
 def testing345():
     pass
 
