@@ -79,10 +79,10 @@ class FixIndentation(BaseFix):
             tab_count = node.prefix.count('\t')
             if tab_count:
                 # If tabs, indent level is number of tabs
-                indent_level = tab_count * NUM_SPACES
+                indent = tab_count * NUM_SPACES
             else:
-                indent_level = node.column
-            self.indents = self.indents[:self.indents.index(indent_level) + 1]
+                indent = node.column
+            self.indents = self.indents[:self.indents.index(indent) + 1]
             # For OUTDENTS, the indentation is in the last line of the prefix
             self.fix_indent_prefix(node)
         else:
