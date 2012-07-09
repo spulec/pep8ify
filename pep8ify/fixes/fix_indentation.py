@@ -14,10 +14,6 @@ class FixIndentation(BaseFix):
     use 8-space tabs.
     """
 
-    indents = []
-    line_num = 0
-    prev_line_indent = 0
-
     def __init__(self, options, log):
         self.indents = []
         self.line_num = 0
