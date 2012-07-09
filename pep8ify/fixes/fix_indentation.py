@@ -17,6 +17,7 @@ class FixIndentation(BaseFix):
     def __init__(self, options, log):
         self.indents = []
         self.line_num = 0
+        self.current_line_dedent = None
         # This is the indent of the previous line before it was modified
         self.prev_line_indent = 0
 
@@ -29,10 +30,12 @@ class FixIndentation(BaseFix):
 
     def transform(self, node, results):
         if node.type == token.INDENT:
+            self.current_line_dedent = None
             self.transform_indent(node)
         elif node.type == token.DEDENT:
             self.transform_outdent(node)
         elif self.line_num != node.lineno:
+            self.current_line_dedent = None
             self.transform_newline(node)
 
     def transform_indent(self, node):
@@ -85,6 +88,10 @@ class FixIndentation(BaseFix):
             self.indents = self.indents[:self.indents.index(indent) + 1]
             # For OUTDENTS, the indentation is in the last line of the prefix
             self.fix_indent_prefix(node)
+            # if the last node was a dedent, too, modify that node's prefix
+            # and remember that node
+            self.current_line_dedent = self.current_line_dedent or node
+            self.fix_indent_prefix(self.current_line_dedent)
         else:
             # Outdent all the way
             self.indents = []
