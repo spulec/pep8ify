@@ -106,8 +106,8 @@ class FixIndentation(BaseFix):
 
             # Split the lines of comment and prepend them with the new indent
             # value
-            return ["%s%s" % (new_comment_indent, line.lstrip())
-                    if line else '' for line in prefix.split('\n')]
+            return [(new_comment_indent + line.lstrip()) if line else ''
+                    for line in prefix.split('\n')]
         else:
             return prefix.split('\n')
 
