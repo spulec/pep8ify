@@ -15,7 +15,7 @@ class FixIndentation(BaseFix):
     """
 
     def __init__(self, options, log):
-        self.indents = []
+        self.indent_level = 0
         self.line_num = 0
         self.current_line_dedent = None
         # This is the indent of the previous line before it was modified
@@ -44,9 +44,9 @@ class FixIndentation(BaseFix):
         self.line_num = node.lineno
         # Indent spacing is stored in the value, node the prefix
         self.prev_line_indent = len(node.value.replace('\t', SPACES))
-        self.indents.append(self.prev_line_indent)
+        self.indent_level += 1
 
-        new_value = SPACES * len(self.indents)
+        new_value = SPACES * self.indent_level
 
         new_prefix = node.prefix
         # Strip any previous newlines since they shouldn't change the comment
@@ -60,7 +60,7 @@ class FixIndentation(BaseFix):
                 new_comment_indent = new_value
             else:
                 # This comment should be aligned with the previous indent
-                new_comment_indent = SPACES * (len(self.indents) - 1)
+                new_comment_indent = SPACES * (self.indent_level - 1)
 
             # Split the lines of comment and prepend them with the new indent
             # value
@@ -78,27 +78,19 @@ class FixIndentation(BaseFix):
         self.prev_line_indent = prefix_indent_count(node)
 
         if node.column:
-            # Partial outdent, remove higher indents
-            tab_count = node.prefix.count('\t')
-            if tab_count:
-                # If tabs, indent level is number of tabs
-                indent = tab_count * NUM_SPACES
-            else:
-                indent = node.column
-            self.indents = self.indents[:self.indents.index(indent) + 1]
-            # For OUTDENTS, the indentation is in the last line of the prefix
-            self.fix_indent_prefix(node)
+            # Partial outdent, remove highest indent
+            self.indent_level -= 1
             # if the last node was a dedent, too, modify that node's prefix
             # and remember that node
             self.current_line_dedent = self.current_line_dedent or node
             self.fix_indent_prefix(self.current_line_dedent)
         else:
             # Outdent all the way
-            self.indents = []
+            self.indent_level = 0
 
     def transform_newline(self, node):
         self.line_num = node.lineno
-        if self.indents:
+        if self.indent_level:
             self.fix_indent_prefix(node, newline=True)
         else:
             # First line, no need to do anything
@@ -106,7 +98,6 @@ class FixIndentation(BaseFix):
 
     def fix_indent_prefix(self, node, newline=False):
         if node.prefix:
-            new_indent = len(self.indents)
             if newline:
                 # Don't reindent continuing lines that are already indented
                 # past where they need to be.
@@ -115,7 +106,7 @@ class FixIndentation(BaseFix):
                     return
 
             prefix_lines = node.prefix.split('\n')[:-1]
-            prefix_lines.append(SPACES * new_indent)
+            prefix_lines.append(SPACES * self.indent_level)
             new_prefix = '\n'.join(prefix_lines)
             if node.prefix != new_prefix:
                 node.prefix = new_prefix
