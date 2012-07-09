@@ -80,7 +80,10 @@ class FixIndentation(BaseFix):
             # These have the same lineno, but only the very first one
             # has a prefix, the others must not.
             assert not node.prefix # must be empty
+            assert (self.current_line_dedent is None or
+                    self.current_line_dedent.lineno == node.lineno)
         else:
+            self.current_line_dedent = node
             assert node.prefix or node.column == 0 # must not be empty
 
         self.line_num = node.lineno
@@ -91,7 +94,6 @@ class FixIndentation(BaseFix):
             self.indent_level -= 1
             # if the last node was a dedent, too, modify that node's prefix
             # and remember that node
-            self.current_line_dedent = self.current_line_dedent or node
             self.fix_indent_prefix(self.current_line_dedent)
         else:
             # Outdent all the way
