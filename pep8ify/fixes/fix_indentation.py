@@ -7,12 +7,12 @@ from .utils import prefix_indent_count, IS_26, add_leaves_method
 
 
 class FixIndentation(BaseFix):
-    '''
+    """
     Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
     use 8-space tabs.
-    '''
+    """
 
     indents = []
     line_num = 0
