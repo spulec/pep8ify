@@ -3,6 +3,8 @@ from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 from lib2to3.pgen2 import token
 
+import re
+
 from .utils import prefix_indent_count, IS_26, add_leaves_method, NUM_SPACES, SPACES
 
 
@@ -15,6 +17,7 @@ class FixIndentation(BaseFix):
     """
 
     def __init__(self, options, log):
+        self.indents = []
         self.indent_level = 0
         self.line_num = 0
         self.current_line_dedent = None
@@ -44,10 +47,11 @@ class FixIndentation(BaseFix):
         self.line_num = node.lineno
         # Indent spacing is stored in the value, node the prefix
         self.prev_line_indent = len(node.value.replace('\t', SPACES))
+        self.indents.append(self.prev_line_indent)
         self.indent_level += 1
 
         new_value = SPACES * self.indent_level
-        new_prefix = '\n'.join(self.align_preceding_comment(node, new_value)).rstrip(' ')
+        new_prefix = '\n'.join(self.align_preceding_comment(node)).rstrip(' ')
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
@@ -60,10 +64,12 @@ class FixIndentation(BaseFix):
             # multi-level dedent), there are several DEDENT nodes.
             # These have the same lineno, but only the very first one
             # has a prefix, the others must not.
+            is_consecutive_indent = True
             assert not node.prefix # must be empty
             assert (self.current_line_dedent is None or
                     self.current_line_dedent.lineno == node.lineno)
         else:
+            is_consecutive_indent = False
             self.current_line_dedent = node
             assert node.prefix or node.column == 0 # must not be empty
 
@@ -75,9 +81,14 @@ class FixIndentation(BaseFix):
             self.indent_level -= 1
             # if the last node was a dedent, too, modify that node's prefix
             # and remember that node
-            self.fix_indent_prefix(self.current_line_dedent)
+            self.fix_indent_prefix(self.current_line_dedent,
+                                   not is_consecutive_indent)
+            # pop indents *after* prefix/comment has been reindented,
+            # as the last indent-level may be needed there.
+            self.indents.pop()
         else:
             # Outdent all the way
+            self.indents = []
             self.indent_level = 0
 
     def transform_newline(self, node):
@@ -92,21 +103,27 @@ class FixIndentation(BaseFix):
             # First line, no need to do anything
             pass
 
-
-    def align_preceding_comment(self, node, indent):
+    def align_preceding_comment(self, node):
         prefix = node.prefix
-        # Strip any previous newlines since they shouldn't change the comment
-        # indent
-        comment_indent = prefix.strip('\n').find("#")
+        # Strip any previous empty lines since they shouldn't change
+        # the comment indent
+        comment_indent = re.sub(r'^([\s\t]*\n)?', '', prefix).find("#")
         if comment_indent > -1:
             # Determine if we should align the comment with the line before or
             # after
-            if comment_indent == next(node.next_sibling.leaves()).column:
-                # This comment should be aligned with its next_sibling
-                new_comment_indent = indent
-            else:
-                # This comment should be aligned with the previous indent
+            # Default: indent to current level
+            new_comment_indent = SPACES * self.indent_level
+
+            if (node.type == token.INDENT and
+                comment_indent != node.next_sibling.leaves().next().column):
+                # The comment is not aligned with the next indent, so
+                # it should be aligned with the previous indent.
                 new_comment_indent = SPACES * (self.indent_level - 1)
+            elif node.type == token.DEDENT:
+                # The comment is not aligned with the previous indent, so
+                # it should be aligned with the next indent.
+                level = self.indents.index(comment_indent) + 1
+                new_comment_indent = level * SPACES
 
             # Split the lines of comment and prepend them with the new indent
             # value
@@ -116,10 +133,13 @@ class FixIndentation(BaseFix):
             return prefix.split('\n')
 
 
-    def fix_indent_prefix(self, node):
+    def fix_indent_prefix(self, node, align_comments=True):
         if node.prefix:
 
-            prefix_lines = node.prefix.split('\n')[:-1]
+            if align_comments:
+                prefix_lines = self.align_preceding_comment(node)[:-1]
+            else:
+                prefix_lines = node.prefix.split('\n')[:-1]
             prefix_lines.append(SPACES * self.indent_level)
             new_prefix = '\n'.join(prefix_lines)
             if node.prefix != new_prefix:
