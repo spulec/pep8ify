@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from lib2to3.main import main
+import lib2to3.main
 
 try:
     import pep8ify.fixes
@@ -14,7 +14,7 @@ except ImportError:
 
 
 def _main():
-    raise SystemExit(main("pep8ify.fixes"))
+    raise SystemExit(lib2to3.main.main("pep8ify.fixes"))
 
 if __name__ == '__main__':
     _main()
