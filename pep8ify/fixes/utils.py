@@ -16,6 +16,9 @@ UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
 OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 MAX_CHARS = 79
 
+NUM_SPACES = 4
+SPACES = u' ' * NUM_SPACES
+
 
 def add_leaves_method(node):
     def leaves(node):
@@ -107,7 +110,7 @@ def has_parent(node, symbol_type):
 
 def prefix_indent_count(node):
     # Find the number of spaces preceding this line
-    return len(node.prefix.split('\n')[-1].replace('\t', ' ' * 4))
+    return len(node.prefix.split('\n')[-1].replace('\t', SPACES))
 
 
 def node_length(*nodes):

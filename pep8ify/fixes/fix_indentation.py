@@ -3,7 +3,7 @@ from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 from lib2to3.pgen2 import token
 
-from .utils import prefix_indent_count, IS_26, add_leaves_method
+from .utils import prefix_indent_count, IS_26, add_leaves_method, NUM_SPACES, SPACES
 
 
 class FixIndentation(BaseFix):
@@ -44,10 +44,10 @@ class FixIndentation(BaseFix):
             node = add_leaves_method(node)
         self.line_num = node.lineno
         # Indent spacing is stored in the value, node the prefix
-        self.prev_line_indent = len(node.value.replace('\t', ' ' * 4))
+        self.prev_line_indent = len(node.value.replace('\t', SPACES))
         self.indents.append(self.prev_line_indent)
 
-        new_value = ' ' * 4 * len(self.indents)
+        new_value = SPACES * len(self.indents)
 
         new_prefix = node.prefix
         # Strip any previous newlines since they shouldn't change the comment
@@ -61,7 +61,7 @@ class FixIndentation(BaseFix):
                 new_comment_indent = new_value
             else:
                 # This comment should be aligned with the previous indent
-                new_comment_indent = ' ' * 4 * (len(self.indents) - 1)
+                new_comment_indent = SPACES * (len(self.indents) - 1)
 
             # Split the lines of comment and prepend them with the new indent
             # value
@@ -83,7 +83,7 @@ class FixIndentation(BaseFix):
             tab_count = node.prefix.count('\t')
             if tab_count:
                 # If tabs, indent level is number of tabs
-                indent_level = tab_count * 4
+                indent_level = tab_count * NUM_SPACES
             else:
                 indent_level = node.column
             self.indents = self.indents[:self.indents.index(indent_level) + 1]
@@ -112,7 +112,7 @@ class FixIndentation(BaseFix):
                     return
 
             prefix_lines = node.prefix.split('\n')[:-1]
-            prefix_lines.append(' ' * 4 * new_indent)
+            prefix_lines.append(SPACES * new_indent)
             new_prefix = '\n'.join(prefix_lines)
             if node.prefix != new_prefix:
                 node.prefix = new_prefix

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 
+SPACES = ' ' * 4
 
 class FixTabs(BaseFix):
     '''
@@ -16,8 +17,8 @@ class FixTabs(BaseFix):
         return False
 
     def transform(self, node, results):
-        new_prefix = node.prefix.replace('\t', '    ')
-        new_value = node.value.replace('\t', '    ')
+        new_prefix = node.prefix.replace('\t', SPACES)
+        new_value = node.value.replace('\t', SPACES)
         if node.prefix != new_prefix or node.value != new_value:
             node.prefix = new_prefix
             node.value = new_value
