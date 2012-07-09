@@ -47,26 +47,7 @@ class FixIndentation(BaseFix):
         self.indent_level += 1
 
         new_value = SPACES * self.indent_level
-
-        new_prefix = node.prefix
-        # Strip any previous newlines since they shouldn't change the comment
-        # indent
-        comment_indent = node.prefix.strip('\n').find("#")
-        if comment_indent > -1:
-            # Determine if we should align the comment with the line before or
-            # after
-            if comment_indent == next(node.next_sibling.leaves()).column:
-                # This comment should be aligned with its next_sibling
-                new_comment_indent = new_value
-            else:
-                # This comment should be aligned with the previous indent
-                new_comment_indent = SPACES * (self.indent_level - 1)
-
-            # Split the lines of comment and prepend them with the new indent
-            # value
-            new_prefix = ('\n'.join(["%s%s" % (new_comment_indent, line.
-                lstrip()) if line else '' for line in new_prefix.split('\n')]
-            ).rstrip(' '))
+        new_prefix = '\n'.join(self.align_preceding_comment(node, new_value)).rstrip(' ')
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
@@ -106,6 +87,30 @@ class FixIndentation(BaseFix):
         else:
             # First line, no need to do anything
             pass
+
+
+    def align_preceding_comment(self, node, indent):
+        prefix = node.prefix
+        # Strip any previous newlines since they shouldn't change the comment
+        # indent
+        comment_indent = prefix.strip('\n').find("#")
+        if comment_indent > -1:
+            # Determine if we should align the comment with the line before or
+            # after
+            if comment_indent == next(node.next_sibling.leaves()).column:
+                # This comment should be aligned with its next_sibling
+                new_comment_indent = indent
+            else:
+                # This comment should be aligned with the previous indent
+                new_comment_indent = SPACES * (self.indent_level - 1)
+
+            # Split the lines of comment and prepend them with the new indent
+            # value
+            return ["%s%s" % (new_comment_indent, line.lstrip())
+                    if line else '' for line in prefix.split('\n')]
+        else:
+            return prefix.split('\n')
+
 
     def fix_indent_prefix(self, node, newline=False):
         if node.prefix:
