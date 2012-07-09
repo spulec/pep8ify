@@ -83,7 +83,11 @@ class FixIndentation(BaseFix):
     def transform_newline(self, node):
         self.line_num = node.lineno
         if self.indent_level:
-            self.fix_indent_prefix(node, newline=True)
+            # Don't reindent continuing lines that are already indented
+            # past where they need to be.
+            current_indent = prefix_indent_count(node)
+            if current_indent <= self.prev_line_indent:
+                self.fix_indent_prefix(node)
         else:
             # First line, no need to do anything
             pass
@@ -112,14 +116,8 @@ class FixIndentation(BaseFix):
             return prefix.split('\n')
 
 
-    def fix_indent_prefix(self, node, newline=False):
+    def fix_indent_prefix(self, node):
         if node.prefix:
-            if newline:
-                # Don't reindent continuing lines that are already indented
-                # past where they need to be.
-                current_indent = prefix_indent_count(node)
-                if current_indent > self.prev_line_indent:
-                    return
 
             prefix_lines = node.prefix.split('\n')[:-1]
             prefix_lines.append(SPACES * self.indent_level)
