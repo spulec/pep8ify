@@ -46,16 +46,15 @@ def test_all_fixtures():
         # subdirectory, only run the fixer of the subdirectory name, else run
         # all fixers.
         for in_file, out_file in in_and_out_files_from_directory(root):
-            #if root == FIXTURE_PATH:
             fixer_to_run = None
-            # else:
-            #fixer_to_run = root.replace(FIXTURE_PATH, "")
 
             # This partial business is a hack to make the description
             # attribute actually work.
             # See http://code.google.com/p/python-nose/issues/detail?id=244#c1
             func = partial(check_fixture, in_file, out_file, fixer_to_run)
-            func.description = fixer_to_run or "All fixes"
+            func.description = "All fixes"
+            if in_file.startswith(FIXTURE_PATH):
+                func.description = in_file[len(FIXTURE_PATH):]
             yield (func,)
 
 
