@@ -6,6 +6,7 @@ from functools import partial
 import os
 from os.path import join
 import shutil
+from difflib import unified_diff
 
 from lib2to3.main import main
 
@@ -64,12 +65,15 @@ test_all_fixtures.teardown = teardown
 
 def check_fixture(in_file, out_file, fixer):
     if fixer:
-        main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
+        main("pep8ify.fixes", args=['--no-diffs', '--fix', fixer, '-w', in_file])
     else:
-        main("pep8ify.fixes", args=['--fix', 'all',
+        main("pep8ify.fixes", args=['--no-diffs', '--fix', 'all',
             '--fix', 'maximum_line_length', '-w', in_file])
     in_file_contents = open(in_file, 'r').readlines()
     out_file_contents = open(out_file, 'r').readlines()
-    assert in_file_contents == out_file_contents, \
-        "in_file doesn't match out_file with \n%s\n:\n%s" \
-        % (in_file_contents, out_file_contents)
+
+    if in_file_contents != out_file_contents:
+        text = "in_file doesn't match out_file\n"
+        text += ''.join(unified_diff(out_file_contents, in_file_contents,
+                                     'expected', 'refactured result'))
+        raise AssertionError(text)
