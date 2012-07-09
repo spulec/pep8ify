@@ -74,6 +74,15 @@ class FixIndentation(BaseFix):
             node.changed()
 
     def transform_outdent(self, node):
+        if self.line_num == node.lineno:
+            # If a line dedents more then one level (so it's a
+            # multi-level dedent), there are several DEDENT nodes.
+            # These have the same lineno, but only the very first one
+            # has a prefix, the others must not.
+            assert not node.prefix # must be empty
+        else:
+            assert node.prefix or node.column == 0 # must not be empty
+
         self.line_num = node.lineno
         self.prev_line_indent = prefix_indent_count(node)
 
