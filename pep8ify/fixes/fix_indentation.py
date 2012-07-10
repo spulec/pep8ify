@@ -76,20 +76,16 @@ class FixIndentation(BaseFix):
         self.line_num = node.lineno
         self.prev_line_indent = prefix_indent_count(node)
 
-        if node.column:
-            # Partial outdent, remove highest indent
-            self.indent_level -= 1
-            # if the last node was a dedent, too, modify that node's prefix
-            # and remember that node
-            self.fix_indent_prefix(self.current_line_dedent,
-                                   not is_consecutive_indent)
-            # pop indents *after* prefix/comment has been reindented,
-            # as the last indent-level may be needed there.
-            self.indents.pop()
-        else:
-            # Outdent all the way
-            self.indents = []
-            self.indent_level = 0
+        # outdent, remove highest indent
+        self.indent_level -= 1
+        # if the last node was a dedent, too, modify that node's prefix
+        # and remember that node
+        self.fix_indent_prefix(self.current_line_dedent,
+                               not is_consecutive_indent)
+        # pop indents *after* prefix/comment has been reindented,
+        # as the last indent-level may be needed there.
+        self.indents.pop()
+
 
     def transform_newline(self, node):
         self.line_num = node.lineno
@@ -122,8 +118,20 @@ class FixIndentation(BaseFix):
             elif node.type == token.DEDENT:
                 # The comment is not aligned with the previous indent, so
                 # it should be aligned with the next indent.
-                level = self.indents.index(comment_indent) + 1
-                new_comment_indent = level * SPACES
+                try:
+                    level = self.indents.index(comment_indent) + 1
+                    new_comment_indent = level * SPACES
+                except ValueError:
+                    new_comment_indent = comment_indent * u' '
+                    # indent of comment does not match an indent level
+                    if comment_indent < self.indents[0]:
+                        # not even at indent level 1, leave unchanged
+                        new_comment_indent = comment_indent * u' '
+                    else:
+                        i = max(i for i in self.indents if i < comment_indent)
+                        level = self.indents.index(i) + 1
+                        new_comment_indent = (level * SPACES
+                                              + (comment_indent-i) * u' ')
 
             # Split the lines of comment and prepend them with the new indent
             # value
