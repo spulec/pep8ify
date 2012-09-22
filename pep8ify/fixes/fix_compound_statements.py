@@ -21,8 +21,9 @@ class FixCompoundStatements(BaseFix):
             prev_sibling.type == token.COLON and node.type != symbols.suite):
             # If it's inside a lambda definition, subscript, or sliceop, leave
             # it alone
+            # symbols.trailer
             if node.parent.type in [symbols.lambdef, symbols.subscript,
-                symbols.sliceop, symbols.dictsetmaker]:
+                symbols.sliceop, symbols.dictsetmaker, symbols.trailer]:
                 pass
             else:
                 results["colon"] = True
