@@ -25,8 +25,9 @@ class FixBlankLines(BaseFix):
         # Ignore decorateds funcs since they will be taken care of with the
         # decorator.
         if (node.type == symbols.funcdef and node.parent.type != symbols.
-            decorated or node.type == symbols.classdef or node.type == symbols
-            .decorated or node.type == symbols.simple_stmt):
+            decorated or node.type == symbols.classdef and node.parent.type !=
+            symbols.decorated or node.type == symbols.decorated or node.type
+            == symbols.simple_stmt):
             return True
         return False
 

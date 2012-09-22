@@ -11,6 +11,8 @@ pep8_.
 Installation
 ------------
 
+This library currently only works with python 2.7
+
 To install pep8ify, simply: ::
 
     $ pip install pep8ify
@@ -62,7 +64,7 @@ A list of the available fixers can be found with the following: ::
 All of these are set to run by default except for 'maximum_line_length'.
 To run all fixes including 'maximum_line_length', run: ::
 
-    $ pep8ify -f all -f idioms example.py
+    $ pep8ify -f all -f maximum_line_length example.py
 
 
 .. _`lib2to3 documentation`: http://docs.python.org/library/2to3.html
