@@ -1,3 +1,0 @@
-Issues
--allow to break on string during maximum_line_length
--pep8 complains about spaces on blank lines in docstrings.
