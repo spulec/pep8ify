@@ -29,6 +29,9 @@ class FixTrailingWhitespace(BaseFix):
                 prefix_split[:-1]] + [prefix_split[-1]])
         else:
             new_prefix = node.prefix.lstrip(u' \t')
+            if new_prefix[0:1] == u'\\':
+                # Insert a space before a backslash ending line
+                new_prefix = u" %s" % new_prefix
         if node.prefix != new_prefix:
             node.prefix = new_prefix
             node.changed()

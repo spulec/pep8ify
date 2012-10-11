@@ -72,6 +72,9 @@ class FixWhitespaceAroundOperator(BaseFix):
             return
         if next_sibling.prefix.count(u'\n'):
             next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+            if next_sibling_new_prefix[0:1] == u'\\':
+                # Insert a space before a backslash ending line
+                next_sibling_new_prefix = u" %s" % next_sibling_new_prefix
         else:
             next_sibling_new_prefix = u" %s" % next_sibling.prefix.lstrip(
                 u' \t')
