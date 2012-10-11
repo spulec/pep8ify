@@ -5,6 +5,9 @@ a = range(10)
 b = range(5)
 foo = [a, b]
 bar = (3,)
+bar = (3, 1,)
+foo = [1,2,]
+foo = [1, 3]
 
 foobar = a[1:4]
 foobar = a[:4]

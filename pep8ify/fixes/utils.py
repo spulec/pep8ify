@@ -30,6 +30,16 @@ def first_child_leaf(node):
         return None
 
 
+def node_text(node):
+    result = u""
+    if isinstance(node, Leaf):
+        result += node.value
+    elif node.children:
+        for child in node.children:
+            result += node_text(child)
+    return result
+
+
 def get_whitespace_before_definition(node):
     if node.prev_sibling:
         return get_last_child_with_whitespace(node.prev_sibling)

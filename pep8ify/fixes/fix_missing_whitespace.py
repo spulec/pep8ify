@@ -20,14 +20,14 @@ class FixMissingWhitespace(BaseFix):
             # If we are using slice notation, no space necessary
             if node.parent.type in [symbols.subscript, symbols.sliceop]:
                 return False
-            # If a tuple with a single element, no space
-            if not node.next_sibling:
-                return False
             return True
         return False
 
     def transform(self, node, results):
-        new_prefix = u" %s" % node.next_sibling.prefix.lstrip(u' \t')
-        if node.next_sibling.prefix != new_prefix:
-            node.next_sibling.prefix = new_prefix
-            node.next_sibling.changed()
+        next_sibling = node.next_sibling
+        if not next_sibling:
+            next_sibling = node.parent.next_sibling
+        new_prefix = u" %s" % next_sibling.prefix.lstrip(u' \t')
+        if next_sibling.prefix != new_prefix:
+            next_sibling.prefix = new_prefix
+            next_sibling.changed()
