@@ -64,7 +64,7 @@ class FixIndentation(BaseFix):
             # value
             new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.
                 lstrip()) if line else u'' for line in new_prefix.split('\n')]
-                ).rstrip(u' '))
+            ).rstrip(u' '))
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value

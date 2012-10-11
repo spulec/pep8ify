@@ -159,9 +159,13 @@ class FixMaximumLineLength(BaseFix):
         if not triple_quoted:
             # If it's not triple quoted, we need to close each line except for
             # the last one
-            split_lines = [u"%s%s" % (line, quote_end) if index != len(
-                split_lines) - 1 else line for index, line in enumerate(
-                split_lines)]
+            new_split_lines = []
+            for index, line in enumerate(split_lines):
+                if index != len(split_lines) - 1:
+                    new_split_lines.append(u"%s%s" % (line, quote_end))
+                else:
+                    new_split_lines.append(line)
+            split_lines = new_split_lines
 
         new_nodes = [Leaf(token.STRING, split_lines.pop(0))]
         for line in split_lines:

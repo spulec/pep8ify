@@ -18,7 +18,7 @@ class FixTrailingBlankLines(BaseFix):
         leaves_after_last_newline = get_leaves_after_last_newline(node)
         # Return any leaves with newlines.
         return [leaf for leaf in leaves_after_last_newline
-                    if leaf.prefix.count('\n')]
+            if leaf.prefix.count('\n')]
 
     def transform(self, node, results):
         for index, result in enumerate(results):
