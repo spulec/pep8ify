@@ -22,7 +22,7 @@ def teardown():
     for root, dirs, files in os.walk(FIXTURE_PATH):
         for filename in files:
             potential_backups.append(join(root, filename))
-    
+
     real_backups = [potential_backup for potential_backup in potential_backups
                     if potential_backup.endswith(".bak")]
     for backup in real_backups:
@@ -48,7 +48,7 @@ def test_all_fixtures():
             fixer_to_run = None
             # else:
             #fixer_to_run = root.replace(FIXTURE_PATH, "")
-            
+
             # This partial business is a hack to make the description
             # attribute actually work.
             # See http://code.google.com/p/python-nose/issues/detail?id=244#c1
