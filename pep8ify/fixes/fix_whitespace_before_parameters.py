@@ -1,10 +1,11 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 
 
 class FixWhitespaceBeforeParameters(BaseFix):
-    u'''
+    '''
     Avoid extraneous whitespace in the following situations:
 
     - Immediately before the open parenthesis that starts the argument
@@ -21,6 +22,6 @@ class FixWhitespaceBeforeParameters(BaseFix):
         return False
 
     def transform(self, node, results):
-        if node.prefix != u"":
-            node.prefix = u""
+        if node.prefix != "":
+            node.prefix = ""
             node.changed()

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
@@ -11,7 +12,7 @@ KEYWORKD_ARG_SYMBOLS = [symbols.argument, symbols.arglist, symbols.
 
 
 class FixWhitespaceAroundOperator(BaseFix):
-    u'''
+    '''
     Avoid extraneous whitespace in the following situations:
 
     - More than one space around an assignment (or other) operator to
@@ -29,40 +30,40 @@ class FixWhitespaceAroundOperator(BaseFix):
             factor):
             self.rstrip(node)
         # Allow argument unpacking: foo(*args, **kwargs).
-        elif(node.value in [u'*', u'**'] and node.parent.type in ARG_SYMBOLS
+        elif(node.value in ['*', '**'] and node.parent.type in ARG_SYMBOLS
             and (not node.prev_sibling or node.prev_sibling.type == token.
             COMMA)):
             self.rstrip(node)
         # Allow keyword assignment: foobar(foo=bar)
-        elif node.value == u'=' and node.parent.type in KEYWORKD_ARG_SYMBOLS:
+        elif node.value == '=' and node.parent.type in KEYWORKD_ARG_SYMBOLS:
             self.no_spaces(node)
         # Finally check if the spacing actually needs fixing
-        elif(node.prefix != u" " or node.get_suffix() != u" "):
+        elif(node.prefix != " " or node.get_suffix() != " "):
             self.spaces(node)
 
     def rstrip(self, node):
         next_sibling = node.next_sibling
-        next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+        next_sibling_new_prefix = next_sibling.prefix.lstrip(' \t')
         if next_sibling.prefix != next_sibling_new_prefix:
             next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()
 
     def no_spaces(self, node):
-        if node.prefix != u"":
-            node.prefix = u""
+        if node.prefix != "":
+            node.prefix = ""
             node.changed()
 
         next_sibling = node.next_sibling
-        next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
+        next_sibling_new_prefix = next_sibling.prefix.lstrip(' \t')
         if next_sibling.prefix != next_sibling_new_prefix:
             next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()
 
     def spaces(self, node):
-        if not node.prefix.count(u'\n'):
+        if not node.prefix.count('\n'):
             # If there are newlines in the prefix, this is a continued line,
             # don't strip anything
-            new_prefix = u" %s" % node.prefix.lstrip(u' \t')
+            new_prefix = " %s" % node.prefix.lstrip(' \t')
             if node.prefix != new_prefix:
                 node.prefix = new_prefix
                 node.changed()
@@ -70,14 +71,14 @@ class FixWhitespaceAroundOperator(BaseFix):
         next_sibling = node.next_sibling
         if not next_sibling:
             return
-        if next_sibling.prefix.count(u'\n'):
-            next_sibling_new_prefix = next_sibling.prefix.lstrip(u' \t')
-            if next_sibling_new_prefix[0:1] == u'\\':
+        if next_sibling.prefix.count('\n'):
+            next_sibling_new_prefix = next_sibling.prefix.lstrip(' \t')
+            if next_sibling_new_prefix[0:1] == '\\':
                 # Insert a space before a backslash ending line
-                next_sibling_new_prefix = u" %s" % next_sibling_new_prefix
+                next_sibling_new_prefix = " %s" % next_sibling_new_prefix
         else:
-            next_sibling_new_prefix = u" %s" % next_sibling.prefix.lstrip(
-                u' \t')
+            next_sibling_new_prefix = " %s" % next_sibling.prefix.lstrip(
+                ' \t')
         if next_sibling.prefix != next_sibling_new_prefix:
             next_sibling.prefix = next_sibling_new_prefix
             next_sibling.changed()

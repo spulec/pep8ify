@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import find_indentation
 from lib2to3.pgen2 import token
@@ -8,7 +9,7 @@ from .utils import (get_whitespace_before_definition, has_parent,
 
 
 class FixBlankLines(BaseFix):
-    u'''
+    '''
     Separate top-level function and class definitions with two blank lines.
 
     Method definitions inside a class are separated by a single blank line.
@@ -34,7 +35,7 @@ class FixBlankLines(BaseFix):
     def transform(self, node, results):
         # Sometimes newlines are in prefix of current node, sometimes they're
         # in prefix of the prev sibling
-        if node.prefix.count(u'\n'):
+        if node.prefix.count('\n'):
             newline_node = node
         else:
             newline_node = get_whitespace_before_definition(node)
@@ -46,7 +47,7 @@ class FixBlankLines(BaseFix):
             # If the newline_node is an indent or newline, we don't need to
             # worry about fixing indentation since it is not part of the
             # prefix. Dedents do have it as part of the prefix.
-            curr_node_indentation = u''
+            curr_node_indentation = ''
         else:
             curr_node_indentation = find_indentation(node)
         min_lines_between_defs, max_lines_between_defs = (self.
@@ -79,27 +80,27 @@ class FixBlankLines(BaseFix):
         before_comments, comments, after_comments = tuplize_comments(
             previous_whitespace)
 
-        if before_comments.count(u"\n") > max_lines_between_defs:
-            before_comments = u'\n' * max_lines_between_defs
-        if after_comments.count(u"\n") > max_lines_between_defs:
-            after_comments = u'\n' * max_lines_between_defs
+        if before_comments.count("\n") > max_lines_between_defs:
+            before_comments = '\n' * max_lines_between_defs
+        if after_comments.count("\n") > max_lines_between_defs:
+            after_comments = '\n' * max_lines_between_defs
 
-        if (before_comments.count(u"\n") + after_comments.count(u"\n") >
+        if (before_comments.count("\n") + after_comments.count("\n") >
             max_lines_between_defs):
             if before_comments and after_comments:
                 # If there are spaces before and after, trim them down on both
                 # sides to either 1 before and 1 after or 0 before and 1 after.
-                before_comments = (u'\n' * (min_lines_between_defs - 1) if
-                    min_lines_between_defs else u'')
-                after_comments = u'\n'
+                before_comments = ('\n' * (min_lines_between_defs - 1) if
+                    min_lines_between_defs else '')
+                after_comments = '\n'
 
-        comment_lines = before_comments.count(u"\n") + after_comments.count(
-            u"\n")
+        comment_lines = before_comments.count("\n") + after_comments.count(
+            "\n")
         if comment_lines < min_lines_between_defs:
-            before_comments += (min_lines_between_defs - comment_lines) * u'\n'
-        result = u'%s%s%s' % (before_comments, comments, after_comments)
+            before_comments += (min_lines_between_defs - comment_lines) * '\n'
+        result = '%s%s%s' % (before_comments, comments, after_comments)
 
         # Make sure that the result indenation matches the original indentation
-        if result.split(u'\n')[-1] != curr_node_indentation:
-            result = u"%s%s" % (result.rstrip(u' '), curr_node_indentation)
+        if result.split('\n')[-1] != curr_node_indentation:
+            result = "%s%s" % (result.rstrip(' '), curr_node_indentation)
         return result

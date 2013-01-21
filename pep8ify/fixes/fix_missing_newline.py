@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pygram import python_symbols as symbols
 
@@ -5,7 +6,7 @@ from .utils import get_leaves_after_last_newline
 
 
 class FixMissingNewline(BaseFix):
-    u'''
+    '''
     The last line should have a newline.
 
     This is somewhat tricky since the parse tree
@@ -26,6 +27,6 @@ class FixMissingNewline(BaseFix):
             return leaves_after_last_newline[0]
 
     def transform(self, node, leaf):
-        if leaf.prefix != u'\n':
-            leaf.prefix = u'\n'
+        if leaf.prefix != '\n':
+            leaf.prefix = '\n'
             leaf.changed()

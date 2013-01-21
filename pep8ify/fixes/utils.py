@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Leaf
@@ -31,7 +32,7 @@ def first_child_leaf(node):
 
 
 def node_text(node):
-    result = u""
+    result = ""
     if isinstance(node, Leaf):
         result += node.value
     elif node.children:
@@ -51,7 +52,7 @@ def get_last_child_with_whitespace(node):
         leaves.append(leaf)
     reverse_leaves = reversed(leaves)
     for leaf in reverse_leaves:
-        if u'\n' in leaf.prefix or leaf.value == u'\n':
+        if '\n' in leaf.prefix or leaf.value == '\n':
             return leaf
 
 
@@ -64,45 +65,45 @@ def has_parent(node, symbol_type):
 
 def prefix_indent_count(node):
     # Find the number of spaces preceding this line
-    return len(node.prefix.split(u'\n')[-1].replace(u'\t', u' ' * 4))
+    return len(node.prefix.split('\n')[-1].replace('\t', ' ' * 4))
 
 
 def node_length(*nodes):
-    return sum(len(node.prefix.strip(u'\n\t')) +
-        len(node.value.strip(u'\n\t')) for node in nodes)
+    return sum(len(node.prefix.strip('\n\t')) +
+        len(node.value.strip('\n\t')) for node in nodes)
 
 
 def tuplize_comments(prefix):
     # This tuplizes the newlines before and after the prefix
-    # Given u'\n\n\n    # test comment\n    \n'
-    # returns ([u'\n\n\n'], [u'    # test comment\n'], [u'    \n'])
+    # Given '\n\n\n    # test comment\n    \n'
+    # returns (['\n\n\n'], ['    # test comment\n'], ['    \n'])
 
     if not prefix:
-        return (u'', u'', u'')
+        return ('', '', '')
 
     # If there are no newlines, this was just a trailing comment. Leave it
     # alone.
-    if not prefix.count(u'\n'):
-        return (u'', prefix, u'')
+    if not prefix.count('\n'):
+        return ('', prefix, '')
 
     if prefix.count("#"):
-        whitespace_before_first_comment = prefix[:prefix.index(u"#")]
-        start_of_comment = whitespace_before_first_comment.rfind(u'\n')
-        if prefix.count(u'\n') and not prefix.split(u'\n')[-1].strip():
+        whitespace_before_first_comment = prefix[:prefix.index("#")]
+        start_of_comment = whitespace_before_first_comment.rfind('\n')
+        if prefix.count('\n') and not prefix.split('\n')[-1].strip():
             # Add a single newline back if there was a newline in the ending
             # whitespace
-            comments = u"%s\n" % prefix[start_of_comment + 1:].rstrip()
+            comments = "%s\n" % prefix[start_of_comment + 1:].rstrip()
         else:
             comments = prefix[start_of_comment + 1:].rstrip()
     else:
-        if prefix.count(u'\n'):
-            comments = prefix.rsplit(u'\n')[1]
+        if prefix.count('\n'):
+            comments = prefix.rsplit('\n')[1]
             # If no comments, there are no comments except the trailing spaces
             # before the current line
         else:
             comments = prefix
     comments_start = prefix.index(comments)
-    return prefix[:comments_start].strip(u' '), comments, prefix[
+    return prefix[:comments_start].strip(' '), comments, prefix[
         comments_start + len(comments):]
 
 
@@ -110,14 +111,14 @@ def get_quotes(text):
     # Returns the quote type start and end
     # Given u"ur'the string'" returns (u"ur'", u"'")
 
-    if text[:2].lower() in [u'br', u'ur']:
+    if text[:2].lower() in ['br', 'ur']:
         leading_chars = 2
-    elif text[:1].lower() in [u'b', u'u', u'r']:
+    elif text[:1].lower() in ['b', 'u', 'r']:
         leading_chars = 1
     else:
         leading_chars = 0
 
-    if text[leading_chars:leading_chars + 3] in [u'"""', u"'''"]:
+    if text[leading_chars:leading_chars + 3] in ['"""', "'''"]:
         # Triple-quoted string
         quote_start = text[:leading_chars + 3]
     else:
@@ -127,14 +128,14 @@ def get_quotes(text):
 
 
 # Like TextWrapper, but for leaves
-def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
-    subsequent_indent=u''):
+def wrap_leaves(nodes, width=MAX_CHARS, initial_indent='',
+    subsequent_indent=''):
     lines = []
 
     # Fake the prefix of the first node to be the indent that it should be.
     # We'll set it back afterward.
     first_node_prefix = nodes[0].prefix
-    nodes[0].prefix = u' ' * nodes[0].column
+    nodes[0].prefix = ' ' * nodes[0].column
 
     nodes.reverse()
     while nodes:
@@ -156,7 +157,7 @@ def wrap_leaves(nodes, width=MAX_CHARS, initial_indent=u'',
 
             if lines and not curr_line:
                 # Strip prefixes for subsequent lines
-                last_node.prefix = u''
+                last_node.prefix = ''
 
             curr_node_length = node_length(last_node)
 

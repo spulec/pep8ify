@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import find_indentation
 from lib2to3.pgen2 import token
@@ -6,7 +7,7 @@ from lib2to3.pygram import python_symbols as symbols
 
 
 class FixImportsOnSeparateLines(BaseFix):
-    u'''
+    '''
     Imports should usually be on separate lines.
     '''
 
@@ -29,9 +30,9 @@ class FixImportsOnSeparateLines(BaseFix):
                 # Don't add more indentation if this is the first one
                 new_prefix = None
             new_nodes.append(Node(symbols.simple_stmt, [Node(symbols.
-                import_name, [Leaf(token.NAME, u'import', prefix=new_prefix),
-                Leaf(token.NAME, module_name, prefix=u" ")]), Leaf(token.
-                NEWLINE, u'\n')]))
+                import_name, [Leaf(token.NAME, 'import', prefix=new_prefix),
+                Leaf(token.NAME, module_name, prefix=" ")]), Leaf(token.
+                NEWLINE, '\n')]))
 
         node.replace(new_nodes)
         node.changed()

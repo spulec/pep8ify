@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 from functools import partial
 import os
@@ -8,7 +9,7 @@ import shutil
 
 from lib2to3.main import main
 
-FIXTURE_PATH = u'./tests/fixtures/'
+FIXTURE_PATH = './tests/fixtures/'
 
 
 def setup():
@@ -67,8 +68,8 @@ def check_fixture(in_file, out_file, fixer):
     else:
         main("pep8ify.fixes", args=['--fix', 'all',
             '--fix', 'maximum_line_length', '-w', in_file])
-    in_file_contents = open(in_file, u'r').readlines()
-    out_file_contents = open(out_file, u'r').readlines()
+    in_file_contents = open(in_file, 'r').readlines()
+    out_file_contents = open(out_file, 'r').readlines()
     assert in_file_contents == out_file_contents, \
         "in_file doesn't match out_file with \n%s\n:\n%s" \
         % (in_file_contents, out_file_contents)

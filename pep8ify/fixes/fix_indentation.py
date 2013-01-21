@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 from lib2to3.pgen2 import token
@@ -6,7 +7,7 @@ from .utils import prefix_indent_count
 
 
 class FixIndentation(BaseFix):
-    u'''
+    '''
     Use 4 spaces per indentation level.
 
     For really old code that you don't want to mess up, you can continue to
@@ -41,30 +42,30 @@ class FixIndentation(BaseFix):
     def transform_indent(self, node):
         self.line_num = node.lineno
         # Indent spacing is stored in the value, node the prefix
-        self.prev_line_indent = len(node.value.replace(u'\t', u' ' * 4))
+        self.prev_line_indent = len(node.value.replace('\t', ' ' * 4))
         self.indents.append(self.prev_line_indent)
 
-        new_value = u' ' * 4 * len(self.indents)
+        new_value = ' ' * 4 * len(self.indents)
 
         new_prefix = node.prefix
         # Strip any previous newlines since they shouldn't change the comment
         # indent
-        comment_indent = node.prefix.strip(u'\n').find(u"#")
+        comment_indent = node.prefix.strip('\n').find("#")
         if comment_indent > -1:
             # Determine if we should align the comment with the line before or
             # after
-            if comment_indent == node.next_sibling.leaves().next().column:
+            if comment_indent == next(node.next_sibling.leaves()).column:
                 # This comment should be aligned with its next_sibling
                 new_comment_indent = new_value
             else:
                 # This comment should be aligned with the previous indent
-                new_comment_indent = u' ' * 4 * (len(self.indents) - 1)
+                new_comment_indent = ' ' * 4 * (len(self.indents) - 1)
 
             # Split the lines of comment and prepend them with the new indent
             # value
-            new_prefix = ('\n'.join([u"%s%s" % (new_comment_indent, line.
-                lstrip()) if line else u'' for line in new_prefix.split('\n')]
-            ).rstrip(u' '))
+            new_prefix = ('\n'.join(["%s%s" % (new_comment_indent, line.
+                lstrip()) if line else '' for line in new_prefix.split('\n')]
+            ).rstrip(' '))
 
         if node.value != new_value or node.prefix != new_prefix:
             node.value = new_value
@@ -77,7 +78,7 @@ class FixIndentation(BaseFix):
 
         if node.column:
             # Partial outdent, remove higher indents
-            tab_count = node.prefix.count(u'\t')
+            tab_count = node.prefix.count('\t')
             if tab_count:
                 # If tabs, indent level is number of tabs
                 indent_level = tab_count * 4
@@ -109,7 +110,7 @@ class FixIndentation(BaseFix):
                     return
 
             prefix_lines = node.prefix.split('\n')[:-1]
-            prefix_lines.append(u' ' * 4 * new_indent)
+            prefix_lines.append(' ' * 4 * new_indent)
             new_prefix = '\n'.join(prefix_lines)
             if node.prefix != new_prefix:
                 node.prefix = new_prefix

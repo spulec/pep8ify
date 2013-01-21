@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.fixer_util import LParen, RParen, find_indentation
 from lib2to3.pgen2 import token
@@ -16,7 +17,7 @@ SYMBOLS_WITH_NEWLINES_IN_COLONS = [symbols.funcdef, symbols.classdef,
 
 
 class FixMaximumLineLength(BaseFix):
-    u'''
+    '''
     Limit all lines to a maximum of 79 characters.
 
     There are still many devices around that are limited to 80 character
@@ -52,10 +53,10 @@ class FixMaximumLineLength(BaseFix):
                     node_to_split = node_to_split.parent
                 combined_prefix = self.fix_leaves(node_to_split)
                 if combined_prefix:
-                    node.prefix = u"%s\n%s" % (node.prefix, combined_prefix.
+                    node.prefix = "%s\n%s" % (node.prefix, combined_prefix.
                         rstrip())
-        if (any(len(line) > MAX_CHARS for line in node.prefix.split(u'\n')) or
-            node.prefix.count(u"#") and node.column + len(node.prefix) >
+        if (any(len(line) > MAX_CHARS for line in node.prefix.split('\n')) or
+            node.prefix.count("#") and node.column + len(node.prefix) >
             MAX_CHARS):
             # Need to fix the prefix
             self.fix_prefix(node)
@@ -87,7 +88,7 @@ class FixMaximumLineLength(BaseFix):
 
             for child in node.prev_sibling.leaves():
                 if child.type == token.STRING:
-                    lines = node.value.split(u'\n')
+                    lines = node.value.split('\n')
                     if child.column + len(lines.pop(0)) > MAX_CHARS:
                         return True
                     elif any(len(line) > MAX_CHARS for line in lines):
@@ -100,22 +101,22 @@ class FixMaximumLineLength(BaseFix):
             prefix)
 
         # Combine all comment lines together
-        all_comments = u' '.join([line.replace(u'#', u'', 1).lstrip() for line
-            in comments.split(u'\n')])
+        all_comments = ' '.join([line.replace('#', '', 1).lstrip() for line
+            in comments.split('\n')])
 
         # It's an inline comment if it has not newlines
-        is_inline_comment = not node.prefix.count(u'\n')
+        is_inline_comment = not node.prefix.count('\n')
 
-        initial_indent_level = comments.find(u'#')
+        initial_indent_level = comments.find('#')
         if initial_indent_level == -1:
-            split_lines = [u'']
+            split_lines = ['']
         else:
             if is_inline_comment and node.prev_sibling:
                 # If inline comment, find where the prev sibling started to
                 # know how to indent lines
                 initial_indent_level = (first_child_leaf(node.prev_sibling).
                     column)
-            indent = u'%s# ' % (u' ' * initial_indent_level)
+            indent = '%s# ' % (' ' * initial_indent_level)
 
             wrapper = TextWrapper(width=MAX_CHARS, initial_indent=indent,
                 subsequent_indent=indent)
@@ -123,12 +124,12 @@ class FixMaximumLineLength(BaseFix):
 
             if is_inline_comment:
                 # If inline comment is too long, we'll move it to the next line
-                split_lines[0] = u"\n%s" % split_lines[0]
+                split_lines[0] = "\n%s" % split_lines[0]
             else:
                 # We need to add back a newline that was lost above
-                after_comments = u"\n%s" % after_comments
-        new_prefix = u'%s%s%s' % (before_comments, u'\n'.join(split_lines),
-            after_comments.lstrip(u' '))
+                after_comments = "\n%s" % after_comments
+        new_prefix = '%s%s%s' % (before_comments, '\n'.join(split_lines),
+            after_comments.lstrip(' '))
         # Append the trailing spaces back
         if node.prefix != new_prefix:
             node.prefix = new_prefix
@@ -139,18 +140,18 @@ class FixMaximumLineLength(BaseFix):
         quote_start, quote_end = get_quotes(node_to_split.value)
         max_length = MAX_CHARS - node_to_split.column
 
-        triple_quoted = quote_start.count(u'"""') or quote_start.count(u"'''")
-        comment_indent = u' ' * (4 + node_to_split.column)
+        triple_quoted = quote_start.count('"""') or quote_start.count("'''")
+        comment_indent = ' ' * (4 + node_to_split.column)
 
         if not triple_quoted:
             # If it's not tripled-quoted, we need to start and end each line
             # with quotes
-            comment_indent = u'%s%s' % (comment_indent, quote_start)
+            comment_indent = '%s%s' % (comment_indent, quote_start)
             # Since we will be appending the end_quote after each line after
             # the splitting
             max_length -= len(quote_end)
             # If it's not triple quoted, we need to paren it
-            node_to_split.value = u"(%s)" % node_to_split.value
+            node_to_split.value = "(%s)" % node_to_split.value
 
         wrapper = TextWrapper(width=max_length,
             subsequent_indent=comment_indent)
@@ -162,14 +163,14 @@ class FixMaximumLineLength(BaseFix):
             new_split_lines = []
             for index, line in enumerate(split_lines):
                 if index != len(split_lines) - 1:
-                    new_split_lines.append(u"%s%s" % (line, quote_end))
+                    new_split_lines.append("%s%s" % (line, quote_end))
                 else:
                     new_split_lines.append(line)
             split_lines = new_split_lines
 
         new_nodes = [Leaf(token.STRING, split_lines.pop(0))]
         for line in split_lines:
-            new_nodes.extend([Leaf(token.NEWLINE, u'\n'), Leaf(token.STRING,
+            new_nodes.extend([Leaf(token.NEWLINE, '\n'), Leaf(token.STRING,
                 line)])
 
         node_to_split.replace(new_nodes)
@@ -177,29 +178,29 @@ class FixMaximumLineLength(BaseFix):
 
     def fix_leaves(self, node_to_split):
         parent_depth = find_indentation(node_to_split)
-        new_indent = u"%s%s" % (u' ' * 4, parent_depth)
+        new_indent = "%s%s" % (' ' * 4, parent_depth)
         # For now, just indent additional lines by 4 more spaces
 
         child_leaves = []
-        combined_prefix = u""
+        combined_prefix = ""
         prev_leaf = None
         for index, leaf in enumerate(node_to_split.leaves()):
-            if index and leaf.prefix.count(u'#'):
+            if index and leaf.prefix.count('#'):
                 if not combined_prefix:
-                    combined_prefix = u"%s#" % new_indent
-                combined_prefix += leaf.prefix.split(u'#')[-1]
+                    combined_prefix = "%s#" % new_indent
+                combined_prefix += leaf.prefix.split('#')[-1]
 
             # We want to strip all newlines so we can properly insert newlines
             # where they should be
             if leaf.type != token.NEWLINE:
-                if leaf.prefix.count(u'\n') and index:
+                if leaf.prefix.count('\n') and index:
                     # If the line contains a newline, we need to strip all
                     # whitespace since there were leading indent spaces
                     if (prev_leaf and prev_leaf.type in [token.DOT, token.LPAR]
                         or leaf.type in [token.RPAR]):
-                        leaf.prefix = u""
+                        leaf.prefix = ""
                     else:
-                        leaf.prefix = u" "
+                        leaf.prefix = " "
 
                     # Append any trailing inline comments to the combined
                     # prefix
@@ -231,7 +232,7 @@ class FixMaximumLineLength(BaseFix):
             if line_index != len(split_leaves) - 1:
                 # Don't add newline at the end since it it part of the next
                 # sibling
-                new_node.append_child(Leaf(token.NEWLINE, u'\n'))
+                new_node.append_child(Leaf(token.NEWLINE, '\n'))
 
                 # Checks if we ended a line without being surrounded by parens
                 if open_count <= 0:
@@ -239,7 +240,7 @@ class FixMaximumLineLength(BaseFix):
         if need_parens:
             # Parenthesize the parent if we're not inside parenths, braces,
             # brackets, since we inserted newlines between leaves
-            parenth_before_equals = Leaf(token.EQUAL, u"=") in split_leaves[0]
+            parenth_before_equals = Leaf(token.EQUAL, "=") in split_leaves[0]
             self.parenthesize_parent(new_node, parenth_before_equals)
         node_to_split.replace(new_node)
 
@@ -249,14 +250,14 @@ class FixMaximumLineLength(BaseFix):
         if node_to_split.type == symbols.print_stmt:
             self.parenthesize_print_stmt(node_to_split)
         elif node_to_split.type == symbols.return_stmt:
-            self.parenthesize_after_arg(node_to_split, u"return")
+            self.parenthesize_after_arg(node_to_split, "return")
         elif node_to_split.type == symbols.expr_stmt:
             if parenth_before_equals:
-                self.parenthesize_after_arg(node_to_split, u"=")
+                self.parenthesize_after_arg(node_to_split, "=")
             else:
                 self.parenthesize_expr_stmt(node_to_split)
         elif node_to_split.type == symbols.import_from:
-            self.parenthesize_after_arg(node_to_split, u"import")
+            self.parenthesize_after_arg(node_to_split, "import")
         elif node_to_split.type in [symbols.power, symbols.atom]:
             self.parenthesize_call_stmt(node_to_split)
         elif node_to_split.type in [symbols.or_test, symbols.and_test, symbols
@@ -275,7 +276,7 @@ class FixMaximumLineLength(BaseFix):
                 first_child.prefix = first_child.prefix.strip()
                 first_child.changed()
             left_paren = LParen()
-            left_paren.prefix = u" "
+            left_paren.prefix = " "
             node_to_split.insert_child(0, left_paren)
             node_to_split.append_child(RParen())
             node_to_split.changed()
@@ -310,7 +311,7 @@ class FixMaximumLineLength(BaseFix):
                 value_child.changed()
             # We set a space prefix since this is after the '='
             left_paren = LParen()
-            left_paren.prefix = u" "
+            left_paren.prefix = " "
             node_to_split.insert_child(value_index, left_paren)
             node_to_split.append_child(RParen())
             node_to_split.changed()
@@ -328,7 +329,7 @@ class FixMaximumLineLength(BaseFix):
         if first_child != LParen():
             # Since this can be at the beginning of a line, we can't just
             # strip the prefix, we need to keep leading whitespace
-            first_child.prefix = u"%s(" % first_child.prefix
+            first_child.prefix = "%s(" % first_child.prefix
             first_child.changed()
             node_to_split.append_child(RParen())
             node_to_split.changed()
