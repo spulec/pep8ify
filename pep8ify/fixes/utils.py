@@ -2,6 +2,12 @@ from __future__ import unicode_literals
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Leaf
+import types
+import sys
+
+IS_26 = False
+if sys.version_info[0] == 2 and sys.version_info[1] == 6:
+    IS_26 = True
 
 BINARY_OPERATORS = frozenset(['**=', '*=', '+=', '-=', '!=', '<>',
     '%=', '^=', '&=', '|=', '==', '/=', '//=', '<=', '>=', '<<=', '>>=',
@@ -11,8 +17,42 @@ OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 MAX_CHARS = 79
 
 
+def add_leaves_method(node):
+    def leaves(node):
+        if isinstance(node, Leaf):
+            yield node
+        else:
+            for child in node.children:
+                for x in  leaves(child):
+                    yield x
+
+    node.leaves = types.MethodType(leaves, node)
+    other_nodes = ('prev_sibling', 'next_sibling', 'parent')
+    for node_str in other_nodes:
+        n = getattr(node, node_str)
+        if n:
+            setattr(n, 'leaves', types.MethodType(leaves, n))
+    return node
+
+
+def find_indentation(node):
+    try:
+        from lib2to3.fixer_util import find_indentation
+        return find_indentation(node)
+    except ImportError:
+        while node is not None:
+            if node.type == symbols.suite and len(node.children) > 2:
+                indent = node.children[1]
+                if indent.type == token.INDENT:
+                    return indent.value
+            node = node.parent
+        return ""
+
+
 def get_leaves_after_last_newline(node):
     # Get all of the leaves after the last newline leaf
+    if IS_26:
+        node = add_leaves_method(node)
     all_leaves = []
     last_newline_leaf_index = -1
     for index, leaf in enumerate(node.leaves()):
@@ -47,6 +87,8 @@ def get_whitespace_before_definition(node):
 
 
 def get_last_child_with_whitespace(node):
+    if IS_26:
+        node = add_leaves_method(node)
     leaves = []
     for leaf in node.leaves():
         leaves.append(leaf)
