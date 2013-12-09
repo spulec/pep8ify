@@ -3,7 +3,7 @@ from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 from lib2to3.pgen2 import token
 
-from .utils import prefix_indent_count
+from .utils import prefix_indent_count, IS_26, add_leaves_method
 
 
 class FixIndentation(BaseFix):
@@ -40,6 +40,8 @@ class FixIndentation(BaseFix):
             self.transform_newline(node)
 
     def transform_indent(self, node):
+        if IS_26:
+            node = add_leaves_method(node)
         self.line_num = node.lineno
         # Indent spacing is stored in the value, node the prefix
         self.prev_line_indent = len(node.value.replace('\t', ' ' * 4))

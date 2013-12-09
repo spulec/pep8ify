@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import find_indentation
+from .utils import find_indentation
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Node, Leaf

@@ -1,12 +1,13 @@
 from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
-from lib2to3.fixer_util import LParen, RParen, find_indentation
+from lib2to3.fixer_util import LParen, RParen
 from lib2to3.pgen2 import token
 from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Leaf, Node
 from textwrap import TextWrapper
 
-from .utils import tuplize_comments, get_quotes, wrap_leaves, first_child_leaf
+from .utils import (tuplize_comments, get_quotes, wrap_leaves,
+    first_child_leaf, find_indentation, IS_26, add_leaves_method)
 
 MAX_CHARS = 79
 OPENING_TOKENS = [token.LPAR, token.LSQB, token.LBRACE]
@@ -64,6 +65,8 @@ class FixMaximumLineLength(BaseFix):
     @staticmethod
     def need_to_check_node(node):
         # Returns if the node or it's docstring might need to be split
+        if IS_26:
+            node = add_leaves_method(node)
         if node.column > MAX_CHARS:
             return True
         if (node.type == token.COLON
@@ -78,6 +81,8 @@ class FixMaximumLineLength(BaseFix):
         if not node.prev_sibling:
             return False
 
+        if IS_26:
+            node = add_leaves_method(node)
         if node.type == token.NEWLINE:
             node_length = len(node.prefix)
         elif node.type == token.COLON:
@@ -177,6 +182,8 @@ class FixMaximumLineLength(BaseFix):
         node_to_split.changed()
 
     def fix_leaves(self, node_to_split):
+        if IS_26:
+            node_to_split = add_leaves_method(node_to_split)
         parent_depth = find_indentation(node_to_split)
         new_indent = "%s%s" % (' ' * 4, parent_depth)
         # For now, just indent additional lines by 4 more spaces
