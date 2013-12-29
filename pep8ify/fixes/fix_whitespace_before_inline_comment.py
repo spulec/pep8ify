@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
-from lib2to3.pgen2 import token
 
 
 class FixWhitespaceBeforeInlineComment(BaseFix):
@@ -12,10 +11,11 @@ class FixWhitespaceBeforeInlineComment(BaseFix):
     They should start with a # and a single space.
     '''
 
-    _accept_type = token.NEWLINE
-
     def match(self, node):
-        if node.prefix.count("#"):
+        if (node.prefix.count("#") and
+            not node.prefix.lstrip(" \t").startswith("\n")):
+            # If the node starts with a comment and not a newline, then it is
+            # an inline comment.
             return True
         return False
 
