@@ -3,7 +3,6 @@ python:
   - 2.7
   - 3.2
   - 3.3
-script: make travis
+script: make test
 install:
-  - pip install nose
-  - pip install . --use-mirrors
+  - pip install -r requirements.txt

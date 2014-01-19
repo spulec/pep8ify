@@ -5,10 +5,7 @@ init:
 	pip install -r requirements.txt
 
 test:
-	nosetests ./tests/
-
-travis:
-	nosetests ./tests/
+	nosetests --with-coverage ./tests/
 
 tdaemon:
 	tdaemon -t nose ./tests/ --custom-args="--with-growl"

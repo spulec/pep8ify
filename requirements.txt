@@ -1,2 +1,3 @@
+coverage
 nose==1.1.2
 rudolf2
