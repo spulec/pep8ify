@@ -9,7 +9,8 @@ def get_previous_node(node):
     """
     if node.prev_sibling:
         return node.prev_sibling
-    return get_previous_node(node.parent)
+    if node.parent:
+        return get_previous_node(node.parent)
 
 
 class FixWhitespaceBeforeInlineComment(BaseFix):
@@ -34,6 +35,9 @@ class FixWhitespaceBeforeInlineComment(BaseFix):
         # If the previous node ended in a newline, then this node is
         # starting the line so it is not an inline comment.
         prev_node = get_previous_node(node)
+        if not prev_node:
+            # If no previous node, this is not an inline comment.
+            return False
         prev_node_text = node_text(prev_node)
         if prev_node_text.endswith('\n'):
             return False
