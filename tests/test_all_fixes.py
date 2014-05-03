@@ -10,7 +10,7 @@ from difflib import unified_diff
 
 from lib2to3.main import main
 
-FIXTURE_PATH = './tests/fixtures/'
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), '')
 
 
 def setup():
