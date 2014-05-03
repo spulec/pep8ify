@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from lib2to3.fixer_base import BaseFix
 from lib2to3.pytree import Leaf
 
-SPACES = ' ' * 4
+from .utils import SPACES
 
 class FixTabs(BaseFix):
     '''
