@@ -17,7 +17,7 @@ OPERATORS = BINARY_OPERATORS | UNARY_OPERATORS
 MAX_CHARS = 79
 
 NUM_SPACES = 4
-SPACES = u' ' * NUM_SPACES
+SPACES = ' ' * NUM_SPACES
 
 
 def add_leaves_method(node):

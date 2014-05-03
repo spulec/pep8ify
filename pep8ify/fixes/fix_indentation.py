@@ -122,16 +122,16 @@ class FixIndentation(BaseFix):
                     level = self.indents.index(comment_indent) + 1
                     new_comment_indent = level * SPACES
                 except ValueError:
-                    new_comment_indent = comment_indent * u' '
+                    new_comment_indent = comment_indent * ' '
                     # indent of comment does not match an indent level
                     if comment_indent < self.indents[0]:
                         # not even at indent level 1, leave unchanged
-                        new_comment_indent = comment_indent * u' '
+                        new_comment_indent = comment_indent * ' '
                     else:
                         i = max(i for i in self.indents if i < comment_indent)
                         level = self.indents.index(i) + 1
                         new_comment_indent = (level * SPACES
-                                              + (comment_indent-i) * u' ')
+                                              + (comment_indent-i) * ' ')
 
             # Split the lines of comment and prepend them with the new indent
             # value
