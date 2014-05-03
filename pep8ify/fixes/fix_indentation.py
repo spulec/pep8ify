@@ -111,7 +111,7 @@ class FixIndentation(BaseFix):
             new_comment_indent = SPACES * self.indent_level
 
             if (node.type == token.INDENT and
-                comment_indent != node.next_sibling.leaves().next().column):
+                comment_indent < node.next_sibling.leaves().next().column):
                 # The comment is not aligned with the next indent, so
                 # it should be aligned with the previous indent.
                 new_comment_indent = SPACES * (self.indent_level - 1)
