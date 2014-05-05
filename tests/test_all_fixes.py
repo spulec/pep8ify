@@ -6,10 +6,11 @@ from functools import partial
 import os
 from os.path import join
 import shutil
+from difflib import unified_diff
 
 from lib2to3.main import main
 
-FIXTURE_PATH = './tests/fixtures/'
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), '')
 
 
 def setup():
@@ -45,16 +46,15 @@ def test_all_fixtures():
         # subdirectory, only run the fixer of the subdirectory name, else run
         # all fixers.
         for in_file, out_file in in_and_out_files_from_directory(root):
-            #if root == FIXTURE_PATH:
             fixer_to_run = None
-            # else:
-            #fixer_to_run = root.replace(FIXTURE_PATH, "")
 
             # This partial business is a hack to make the description
             # attribute actually work.
             # See http://code.google.com/p/python-nose/issues/detail?id=244#c1
             func = partial(check_fixture, in_file, out_file, fixer_to_run)
-            func.description = fixer_to_run or "All fixes"
+            func.description = "All fixes"
+            if in_file.startswith(FIXTURE_PATH):
+                func.description = in_file[len(FIXTURE_PATH):]
             yield (func,)
 
 
@@ -64,12 +64,15 @@ test_all_fixtures.teardown = teardown
 
 def check_fixture(in_file, out_file, fixer):
     if fixer:
-        main("pep8ify.fixes", args=['--fix', fixer, '-w', in_file])
+        main("pep8ify.fixes", args=['--no-diffs', '--fix', fixer, '-w', in_file])
     else:
-        main("pep8ify.fixes", args=['--fix', 'all',
+        main("pep8ify.fixes", args=['--no-diffs', '--fix', 'all',
             '--fix', 'maximum_line_length', '-w', in_file])
     in_file_contents = open(in_file, 'r').readlines()
     out_file_contents = open(out_file, 'r').readlines()
-    assert in_file_contents == out_file_contents, \
-        "in_file doesn't match out_file with \n%s\n:\n%s" \
-        % (in_file_contents, out_file_contents)
+
+    if in_file_contents != out_file_contents:
+        text = "in_file doesn't match out_file\n"
+        text += ''.join(unified_diff(out_file_contents, in_file_contents,
+                                     'expected', 'refactured result'))
+        raise AssertionError(text)

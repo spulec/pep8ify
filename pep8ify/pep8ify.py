@@ -1,15 +1,20 @@
 #!/usr/bin/env python
 
-from os.path import abspath, dirname, join
-import sys
+import lib2to3.main
 
-from lib2to3.main import main
-
-sys.path.insert(0, abspath(join(dirname(__file__), u"../")))
+try:
+    import pep8ify.fixes
+except ImportError:
+    # if importing pep8ify fails, try to load from parent
+    # directory to support running without installation
+    import imp, os
+    if not hasattr(os, 'getuid') or os.getuid() != 0:
+        imp.load_module('pep8ify', *imp.find_module('pep8ify',
+            [os.path.dirname(os.path.dirname(__file__))]))
 
 
 def _main():
-    sys.exit(main("pep8ify.fixes"))
+    raise SystemExit(lib2to3.main.main("pep8ify.fixes"))
 
 if __name__ == '__main__':
     _main()
