@@ -1,6 +1,4 @@
-import math
-import sys
-import os
+import math, sys, os
 
 from subprocess import Popen, PIPE
 from myclas import MyClass
@@ -17,6 +15,4 @@ class the_class():
         import math
 
     def other_func():
-        import os
-        import sys
-        import math
+        import os, sys, math
