@@ -26,11 +26,8 @@ class FixImportsOnSeparateLines(BaseFix):
         for index, module_name in enumerate(child_imports):
             new_prefix = current_indentation
             if not index:
-                # Don't add more indentation if this is the first one
-                new_prefix = None
-                if node.prefix.strip() != '':
-                    # keep any non-empty prefix
-                    new_prefix = node.prefix
+                # Keep the prefix, if this is the first import name
+                new_prefix = node.prefix
             new_nodes.append(Node(symbols.simple_stmt, [Node(symbols.
                 import_name, [Leaf(token.NAME, 'import', prefix=new_prefix),
                 Leaf(token.NAME, module_name, prefix=" ")]), Leaf(token.
