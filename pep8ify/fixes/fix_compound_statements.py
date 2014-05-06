@@ -58,18 +58,19 @@ class FixCompoundStatements(BaseFix):
     def transform_semi(self, node):
         for child in node.children:
             if child.type == token.SEMI:
+                next_sibling = child.next_sibling
                 # If the next sibling is a NL, this is a trailing semicolon;
                 # simply remove it and the NL's prefix
-                if child.next_sibling == NL:
+                if next_sibling == NL:
                     child.remove()
                     continue
 
                 # Strip any whitespace from the next sibling
-                if (child.next_sibling.prefix != child.next_sibling.prefix.
-                    lstrip()):
-                    child.next_sibling.prefix = (child.next_sibling.prefix.
-                        lstrip())
-                    child.next_sibling.changed()
+                prefix = next_sibling.prefix
+                stripped_prefix = prefix.lstrip()
+                if prefix != stripped_prefix:
+                    next_sibling.prefix = stripped_prefix
+                    next_sibling.changed()
                 # Replace the semi with a newline
                 old_depth = find_indentation(child)
 
