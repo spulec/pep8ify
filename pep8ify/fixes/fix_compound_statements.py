@@ -6,6 +6,8 @@ from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Node, Leaf
 
 
+NL = Leaf(token.NEWLINE, '\n')
+
 class FixCompoundStatements(BaseFix):
     '''
     Compound statements (multiple statements on the same line) are
@@ -56,6 +58,12 @@ class FixCompoundStatements(BaseFix):
     def transform_semi(self, node):
         for child in node.children:
             if child.type == token.SEMI:
+                # If the next sibling is a NL, this is a trailing semicolon;
+                # simply remove it and the NL's prefix
+                if child.next_sibling == NL:
+                    child.remove()
+                    continue
+
                 # Strip any whitespace from the next sibling
                 if (child.next_sibling.prefix != child.next_sibling.prefix.
                     lstrip()):
