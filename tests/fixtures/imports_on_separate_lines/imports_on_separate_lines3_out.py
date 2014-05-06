@@ -9,3 +9,9 @@ class the_class():
     """ doc string """
     import os
     import sys
+
+
+class second_class():
+    some_statement
+    import os
+    import sys

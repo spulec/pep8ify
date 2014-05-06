@@ -6,15 +6,17 @@ from lib2to3.pygram import python_symbols as symbols
 from lib2to3.pytree import Node, Leaf
 
 
+NL = Leaf(token.NEWLINE, '\n')
+
 class FixCompoundStatements(BaseFix):
-    '''
+    """
     Compound statements (multiple statements on the same line) are
     generally discouraged.
 
     While sometimes it's okay to put an if/for/while with a small body
     on the same line, never do this for multi-clause statements. Also
     avoid folding such long lines!
-    '''
+    """
 
     def match(self, node):
         results = {}
@@ -56,16 +58,23 @@ class FixCompoundStatements(BaseFix):
     def transform_semi(self, node):
         for child in node.children:
             if child.type == token.SEMI:
+                next_sibling = child.next_sibling
+                # If the next sibling is a NL, this is a trailing semicolon;
+                # simply remove it and the NL's prefix
+                if next_sibling == NL:
+                    child.remove()
+                    continue
+
                 # Strip any whitespace from the next sibling
-                if (child.next_sibling.prefix != child.next_sibling.prefix.
-                    lstrip()):
-                    child.next_sibling.prefix = (child.next_sibling.prefix.
-                        lstrip())
-                    child.next_sibling.changed()
+                prefix = next_sibling.prefix
+                stripped_prefix = prefix.lstrip()
+                if prefix != stripped_prefix:
+                    next_sibling.prefix = stripped_prefix
+                    next_sibling.changed()
                 # Replace the semi with a newline
                 old_depth = find_indentation(child)
 
-                child.replace([Leaf(token.NEWLINE, '\n'), Leaf(token.INDENT,
-                    old_depth)])
+                child.replace([Leaf(token.NEWLINE, '\n'),
+                               Leaf(token.INDENT, old_depth)])
                 child.changed()
         return node
