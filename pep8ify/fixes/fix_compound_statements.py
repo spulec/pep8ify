@@ -9,14 +9,14 @@ from lib2to3.pytree import Node, Leaf
 NL = Leaf(token.NEWLINE, '\n')
 
 class FixCompoundStatements(BaseFix):
-    '''
+    """
     Compound statements (multiple statements on the same line) are
     generally discouraged.
 
     While sometimes it's okay to put an if/for/while with a small body
     on the same line, never do this for multi-clause statements. Also
     avoid folding such long lines!
-    '''
+    """
 
     def match(self, node):
         results = {}
@@ -73,7 +73,7 @@ class FixCompoundStatements(BaseFix):
                 # Replace the semi with a newline
                 old_depth = find_indentation(child)
 
-                child.replace([Leaf(token.NEWLINE, '\n'), Leaf(token.INDENT,
-                    old_depth)])
+                child.replace([Leaf(token.NEWLINE, '\n'),
+                               Leaf(token.INDENT, old_depth)])
                 child.changed()
         return node
