@@ -1,5 +1,17 @@
-.coverage
+# Python build artefacts
+/build/
+/dist/
+/_venv/
+*.py[cod]
+*.egg
 *.egg-info
-dist
+*.egg-link
+
+.coverage
 *.tox
-*.pyc
+
+# editor artefacts
+*~
+.#*
+\#*#
+.*.swp
