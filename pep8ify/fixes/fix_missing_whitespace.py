@@ -28,6 +28,8 @@ class FixMissingWhitespace(BaseFix):
         next_sibling = node.next_sibling
         if not next_sibling:
             next_sibling = node.parent.next_sibling
+            if not next_sibling:
+                return
         new_prefix = " %s" % next_sibling.prefix.lstrip(' \t')
         if next_sibling.prefix != new_prefix:
             next_sibling.prefix = new_prefix
