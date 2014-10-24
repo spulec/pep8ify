@@ -10,7 +10,7 @@ pep8ify
 """
 
 __title__ = 'pep8ify'
-__version__ = '0.0.12'
+__version__ = '0.0.13'
 __author__ = 'Steve Pulec'
 __license__ = 'Apache License 2.0'
 __copyright__ = 'Copyright 2014 Steve Pulec'
